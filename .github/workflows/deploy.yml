@@ -1,0 +1,39 @@
+name: Deploy Angular App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master  # or master or the branch you want to trigger on
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20' # Set to your desired Node.js version
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -g @angular/cli
+
+      # Build the Angular app
+      - name: Build the Angular app
+        run: |
+          ng build --configuration production --base-href "/ProjectX/"
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          publish_dir: ./dist/project-x/browser
+          publish_branch: gh-pages
