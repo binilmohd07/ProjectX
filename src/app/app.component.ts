@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,25 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'ProjectX';
+  user: any;
+
+  constructor(private authService: AuthService) {
+    // this.user = this.authService.getUser();
+    // // Optional: Update user on auth state change
+    // authService.loginWithGoogle().then(res => {
+    //   this.user = res.user;
+    // });
+  }
+
+  login() {
+    this.authService.loginWithGoogle().then(res => {
+      this.user = res.user;
+    });
+  }
+
+  logout() {
+    this.authService.logout().then(() => {
+      this.user = null;
+    });
+  }
 }
