@@ -24,9 +24,5 @@ export class AppComponent {
     });
   }
 
-  logout() {
-    this.authService.logout().then(() => {
-      this.user = null;
-    });
-  }
+
 }
