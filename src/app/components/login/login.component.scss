@@ -7,29 +7,58 @@
 }
 
 .logo {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     margin-right: 12px;
 }
 
-.google-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-}
 
-.transparent-btn {
-    background-color: none;
-    color: black;
-    /* Customize as needed */
-    border: none;
-    border-radius: 20px;
-    padding: 10px 0px;
+// .transparent-btn {
+//     background-color: none;
+//     color: black;
+//     /* Customize as needed */
+//     border: none;
+//     border-radius: 20px;
+//     padding: 10px 0px;
+//     font-weight: 500;
+//     transition: background-color 0.3s ease;
+
+//     &:hover {
+//         background-color: none;
+//         /* Light hover effect */
+//     }
+// }
+
+.google-signin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f8f9fa;
     font-weight: 500;
-    transition: background-color 0.3s ease;
+    font-size: 14px;
+    color: #3c4043;
+    text-transform: none;
+    box-shadow: none;
+    height: 40px;
+    border-radius: 20px;
 
     &:hover {
-        background-color: none;
-        /* Light hover effect */
+        background-color: #f1f3f4;
     }
+
+    .google-logo {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-top: -1px; // aligns with font baseline
+        padding: 7px;
+    }
+}
+
+.mat-mdc-button:not(:disabled) {
+    color: black !important;
 }
