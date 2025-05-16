@@ -12,10 +12,10 @@ export class LoginGuard implements CanActivate {
     return new Promise(resolve => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          this.router.navigate(['/dashboard']); // 🔁 redirect to dashboard
+          this.router.navigate(['/dashboard']);
           resolve(false);
         } else {
-          resolve(true); // ✅ allow access to login
+          resolve(true);
         }
       });
     });
