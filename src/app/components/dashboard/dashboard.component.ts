@@ -12,8 +12,17 @@ export class DashboardComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) { }
+  ) {
+    this.getLoggedInUserDetails()
+  }
   user: any;
+
+
+  getLoggedInUserDetails() {
+    this.user = this.authService.getUser()
+    console.log(this.user);
+  }
+
   logout() {
     this.authService.logout().then(() => {
       this.user = null;
