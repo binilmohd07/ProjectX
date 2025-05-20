@@ -20,7 +20,6 @@ export class DashboardComponent {
 
   getLoggedInUserDetails() {
     this.user = this.authService.getUser()
-    console.log(this.user);
   }
 
   logout() {

@@ -11,16 +11,9 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   constructor(
-    iconRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
     private authService: AuthService,
     private router: Router
-  ) {
-    iconRegistry.addSvgIcon(
-      'google',
-      sanitizer.bypassSecurityTrustResourceUrl('assets/google_icon.svg')
-    );
-  }
+  ) { }
 
   user: any;
   signInWithGoogle() {
