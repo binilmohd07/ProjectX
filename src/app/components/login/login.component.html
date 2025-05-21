@@ -1,11 +1,14 @@
 <mat-card class="login-card">
+    <mat-card-header>
+        <mat-card-title>
+            <h2 class="login-title">Welcome to ProjectX</h2>
+        </mat-card-title>
+    </mat-card-header>
 
-    <h5 style="text-align: center;">Welcome to ProjectX</h5>
-    <p>Sign in to use your account</p>
-
-    <br>
     <mat-card-content>
-        <button mat-button class="google-signin-btn" (click)="signInWithGoogle()">
+        <p class="login-subtitle">Sign in to continue to your account</p>
+
+        <button mat-stroked-button color="primary" class="google-signin-btn" (click)="signInWithGoogle()">
             <img src="assets/google_logo.png" alt="Google logo" class="google-logo" />
             <span>Sign in with Google</span>
         </button>
