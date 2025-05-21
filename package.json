@@ -7,8 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:gh": "ng build --configuration production --base-href=/ProjectX/ && cp dist/ProjectX/index.html dist/ProjectX/404.html",
-    "deploy:gh": "npm run build:gh && npx angular-cli-ghpages --dir=dist/ProjectX"
+    "build:gh": "ng build --configuration production --base-href=/ProjectX/ && cp dist/project-x/browser/index.html dist/project-x/browser/404.html",
+    "deploy:gh": "npm run build:gh && npx angular-cli-ghpages --dir=dist/project-x/browser"
   },
   "private": true,
   "dependencies": {
