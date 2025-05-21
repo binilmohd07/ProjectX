@@ -20,6 +20,7 @@ export class DashboardComponent {
 
   getLoggedInUserDetails() {
     this.user = this.authService.getUser()
+    console.log(this.user)
   }
 
   logout() {
@@ -27,5 +28,10 @@ export class DashboardComponent {
       this.user = null;
       this.router.navigate(['/login']);
     });
+  }
+
+  onSettings() {
+    // TODO: Implement settings navigation or dialog
+    alert('Settings clicked!');
   }
 }

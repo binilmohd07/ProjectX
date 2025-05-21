@@ -2,7 +2,25 @@ html,
 body {
     height: 100%;
     margin: 0;
+}
+
+* {
     font-family: 'Noto Sans', sans-serif !important;
+}
+
+// Prevent font override for Material Icons
+.material-icons, .mat-icon, [class*="mat-icon"] {
+    font-family: 'Material Icons' !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    letter-spacing: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
 }
 
 .mat-mdc-button .mdc-button__label,
