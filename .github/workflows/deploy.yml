@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master  # or master or the branch you want to trigger on
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,11 +12,11 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Set up Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '20' # Set to your desired Node.js version
 
@@ -29,6 +30,7 @@ jobs:
       - name: Build the Angular app
         run: |
           ng build --configuration production --base-href "/ProjectX/"
+          npm run build -- --base-href=/ProjectX/ cp dist/project-x/browser/index.html dist/project-x/browser/404.html
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
