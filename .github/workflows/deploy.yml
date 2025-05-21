@@ -30,7 +30,7 @@ jobs:
       - name: Build the Angular app
         run: |
           ng build --configuration production --base-href "/ProjectX/"
-          npm run build -- --base-href=/ProjectX/ cp dist/project-x/browser/index.html dist/project-x/browser/404.html
+          cp dist/project-x/browser/index.html dist/project-x/browser/404.html
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
