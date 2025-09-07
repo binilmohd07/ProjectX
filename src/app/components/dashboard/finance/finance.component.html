@@ -1,6 +1,157 @@
-<button (click)="addSample()">Add Sample Finance</button>
-<ul>
-    <li *ngFor="let finance of finances">
-        {{ finance.name }} - {{ finance.type }} - {{ finance.remarks }}
-    </li>
-</ul>
+<div class="finance-container">
+    <mat-card>
+        <mat-card-title>
+            {{ editMode ? 'Update Finance' : 'Add Finance' }}
+        </mat-card-title>
+        <mat-card-content>
+            <form [formGroup]="financeForm" (ngSubmit)="onSubmit()" class="finance-form">
+                <div class="form-row">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Type</mat-label>
+                        <mat-select formControlName="type" required>
+                            <mat-option [value]="1">Income</mat-option>
+                            <mat-option [value]="2">Expenses</mat-option>
+                            <mat-option [value]="3">Savings</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>User ID</mat-label>
+                        <input matInput formControlName="userId" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Amount</mat-label>
+                        <input matInput type="number" formControlName="amount" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Date</mat-label>
+                        <input matInput type="date" formControlName="date">
+                    </mat-form-field>
+                </div>
+
+                <!-- Income Fields -->
+                <div *ngIf="financeForm.value.type == 1" class="form-row">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Income ID</mat-label>
+                        <input matInput formControlName="incomeId">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Source</mat-label>
+                        <input matInput formControlName="source">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Note</mat-label>
+                        <input matInput formControlName="note">
+                    </mat-form-field>
+                </div>
+
+                <!-- Expenses Fields -->
+                <div *ngIf="financeForm.value.type == 2" class="form-row">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Expense ID</mat-label>
+                        <input matInput formControlName="expenseId">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Category</mat-label>
+                        <input matInput formControlName="category">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Payment Method</mat-label>
+                        <input matInput formControlName="paymentMethod">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Due Date</mat-label>
+                        <input matInput type="date" formControlName="dueDate">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Note</mat-label>
+                        <input matInput formControlName="note">
+                    </mat-form-field>
+                </div>
+
+                <!-- Savings Fields -->
+                <div *ngIf="financeForm.value.type == 3" class="form-row">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Saving ID</mat-label>
+                        <input matInput formControlName="savingId">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Source</mat-label>
+                        <input matInput formControlName="source">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Goal</mat-label>
+                        <input matInput formControlName="goal">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Maturity Date</mat-label>
+                        <input matInput type="date" formControlName="maturityDate">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Note</mat-label>
+                        <input matInput formControlName="note">
+                    </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                    <button mat-raised-button color="primary" type="submit">{{ editMode ? 'Update' : 'Add' }}</button>
+                    <button mat-button type="button" (click)="resetForm()">Clear</button>
+                    <button mat-stroked-button color="accent" type="button" (click)="addSample()">Add Sample
+                        Data</button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="finance-list-card">
+        <mat-card-title>All Finances</mat-card-title>
+        <mat-card-content>
+            <div *ngIf="finances.length > 0" class="finance-list-grid">
+                <mat-card *ngFor="let f of finances" class="finance-list-item-card">
+                    <mat-card-content>
+                        <ng-container [ngSwitch]="f.type">
+                            <!-- Income Card -->
+                            <div *ngSwitchCase="1">
+                                <strong>Income:</strong> {{ f.source }} ({{ f.amount | currency:'INR':'symbol' }})<br>
+                                <small>
+                                    Income ID: {{ f.incomeId }}<br>
+                                    Date: {{ f.date }}<br>
+                                    Note: {{ f.note }}
+                                </small>
+                            </div>
+                            <!-- Expense Card -->
+                            <div *ngSwitchCase="2">
+                                <strong>Expense:</strong> {{ f.category }} ({{ f.amount | currency:'INR':'symbol'
+                                }})<br>
+                                <small>
+                                    Expense ID: {{ f.expenseId }}<br>
+                                    Date: {{ f.date }}<br>
+                                    Due Date: {{ f.dueDate }}<br>
+                                    Payment Method: {{ f.paymentMethod }}<br>
+                                    Note: {{ f.note }}
+                                </small>
+                            </div>
+                            <!-- Savings Card -->
+                            <div *ngSwitchCase="3">
+                                <strong>Savings:</strong> {{ f.goal }} ({{ f.amount | currency:'INR':'symbol' }})<br>
+                                <small>
+                                    Saving ID: {{ f.savingId }}<br>
+                                    Date: {{ f.date }}<br>
+                                    Maturity Date: {{ f.maturityDate }}<br>
+                                    Source: {{ f.source }}<br>
+                                    Note: {{ f.note }}
+                                </small>
+                            </div>
+                        </ng-container>
+                    </mat-card-content>
+                    <mat-card-actions align="end">
+                        <button mat-mini-button color="primary" (click)="editFinance(f)">Edit</button>
+                        <button mat-mini-button color="warn" (click)="deleteFinance(f.id)">Delete</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+            <div *ngIf="finances.length === 0">
+                <p>No finance records found.</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>
