@@ -27,7 +27,7 @@ export class FinanceComponent implements OnInit {
       type: [1, Validators.required],
       userId: ['', Validators.required],
       amount: [0, [Validators.required, Validators.min(0)]],
-      date: [''], // Not required
+      date: [''],
       incomeId: [''],
       expenseId: [''],
       savingId: [''],
@@ -35,9 +35,14 @@ export class FinanceComponent implements OnInit {
       paymentMethod: [''],
       source: [''],
       goal: [''],
+      savingsType: [''], // <-- Add this line
       note: [''],
-      dueDate: [''],       // New field
-      maturityDate: ['']   // New field
+      dueDate: [''],
+      maturityDate: [''],
+      currentValue: [''], // <-- Add this line
+      numInstallments: [''],
+      lastDueDate: [''],
+      maturityAmount: [''] // <-- Add this line
     });
     this.getLoggedInUserDetails();
   }
@@ -96,37 +101,127 @@ export class FinanceComponent implements OnInit {
   addSample() {
     const samples: Finance[] = [
       {
-        type: 1,
-        incomeId: 'INC001',
+        type: 3,
+        savingId: 'SAV_FD',
         userId: 'USER123',
-        amount: 5000,
-        date: '2025-09-07',
-        source: 'Salary',
-        note: 'Monthly salary'
-      },
-      {
-        type: 2,
-        expenseId: 'EXP001',
-        userId: 'USER123',
-        amount: 300,
-        date: '2025-09-07',
-        category: 'Food',
-        paymentMethod: 'Credit Card',
-        note: 'Lunch at restaurant'
+        amount: 100000,
+        date: '2025-09-08',
+        source: 'Bank',
+        goal: 'Fixed Deposit',
+        savingsType: 'FD',
+        maturityAmount: 120000,
+        maturityDate: '2028-09-08',
+        note: '5 year FD'
       },
       {
         type: 3,
-        savingId: 'SAV001',
+        savingId: 'SAV_SIP',
         userId: 'USER123',
-        amount: 1000,
-        date: '2025-09-07',
-        source: 'Bank savings',
-        goal: 'Emergency Fund',
-        note: 'Monthly savings deposit'
+        amount: 5000,
+        date: '2025-09-08',
+        source: 'Mutual Fund',
+        goal: 'Monthly SIP',
+        savingsType: 'SIP',
+        dueDate: '2025-09-15',
+        currentValue: 55000,
+        maturityDate: '2030-09-08',
+        note: 'SIP for retirement'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_POST',
+        userId: 'USER123',
+        amount: 20000,
+        date: '2025-09-08',
+        source: 'Post Office',
+        goal: 'Post Office Savings',
+        savingsType: 'POST',
+        maturityAmount: 25000,
+        maturityDate: '2027-09-08',
+        note: 'Post office scheme'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_PPF',
+        userId: 'USER123',
+        amount: 150000,
+        date: '2025-09-08',
+        source: 'Bank',
+        goal: 'PPF Account',
+        savingsType: 'PPF',
+        currentValue: 180000,
+        maturityDate: '2035-09-08',
+        note: 'Long term PPF'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_INSURANCE',
+        userId: 'USER123',
+        amount: 12000,
+        date: '2025-09-08',
+        source: 'LIC',
+        goal: 'Life Insurance',
+        savingsType: 'INSURANCE',
+        numInstallments: 12,
+        lastDueDate: '2025-08-31',
+        maturityAmount: 200000,
+        maturityDate: '2040-09-08',
+        note: 'LIC policy'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_PF',
+        userId: 'USER123',
+        amount: 80000,
+        date: '2025-09-08',
+        source: 'Employer',
+        goal: 'Provident Fund',
+        savingsType: 'PF',
+        maturityDate: '2030-09-08',
+        note: 'PF contribution'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_STOCKS',
+        userId: 'USER123',
+        amount: 50000,
+        date: '2025-09-08',
+        source: 'Stock Market',
+        goal: 'Equity Investment',
+        savingsType: 'STOCKS',
+        currentValue: 65000,
+        maturityDate: '2026-09-08',
+        note: 'Stocks portfolio'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_CRYPTO',
+        userId: 'USER123',
+        amount: 10000,
+        date: '2025-09-08',
+        source: 'Crypto Exchange',
+        goal: 'Crypto Investment',
+        savingsType: 'CRYPTO',
+        currentValue: 12000,
+        maturityDate: '2027-09-08',
+        note: 'Crypto assets'
+      },
+      {
+        type: 3,
+        savingId: 'SAV_ACCOUNT_BALANCE',
+        userId: 'USER123',
+        amount: 25000,
+        date: '2025-09-08',
+        source: 'Bank',
+        goal: 'Account Balance',
+        savingsType: 'ACCOUNT BALANCE',
+        maturityDate: '2025-09-08',
+        note: 'Current account balance'
       }
     ];
     Promise.all(samples.map(sample => this.financesService.addFinance(sample, this.user.uid))).then(() => {
       this.loadFinances(); // Refresh after adding samples
+      this.hideAddFinanceForm(); // Hide form and show cards
     });
   }
 
@@ -138,6 +233,9 @@ export class FinanceComponent implements OnInit {
 
   setTypeFilter(type: number | null) {
     this.selectedType = type;
+    if (this.showAddForm) {
+      this.hideAddFinanceForm();
+    }
   }
 
   get filteredFinances(): Finance[] {

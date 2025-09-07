@@ -9,22 +9,27 @@ export interface Finance {
   type: number; // 1: Income, 2: Expenses, 3: Savings
   userId: string;
   amount: number;
-  date?: string; // Now optional
+  date?: string;
   // Expenses
   expenseId?: string;
   category?: string;
   paymentMethod?: string;
-  dueDate?: string; // New field
+  dueDate?: string;
   // Savings
   savingId?: string;
   goal?: string;
   source?: string;
-  maturityDate?: string; // New field
+  maturityDate?: string;
+  savingsType?: string; // <-- Add this line
   // Income
   incomeId?: string;
   // Common
   note?: string;
   name?: string;
+  currentValue?: number; // <-- Add this line
+  maturityAmount?: number; // <-- Add this line
+  numInstallments?: number;
+  lastDueDate?: string;
 }
 
 @Injectable({

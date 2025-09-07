@@ -29,7 +29,8 @@
 
     <!-- Top Action Buttons -->
     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; justify-content: flex-end;">
-        <button mat-raised-button color="primary" (click)="showAddFinanceForm()">Add</button>
+        <button mat-raised-button color="primary" (click)="showAddFinanceForm()" *ngIf="!showAddForm">Add</button>
+        <button mat-button (click)="hideAddFinanceForm(); setTypeFilter(null)" *ngIf="showAddForm">Show All</button>
         <mat-checkbox [checked]="selectedFinanceIds.size === filteredFinances.length && filteredFinances.length > 0"
             (change)="toggleSelectAll($event.checked)" *ngIf="!showAddForm">
             Select All
@@ -112,12 +113,59 @@
                         <input matInput formControlName="goal">
                     </mat-form-field>
                     <mat-form-field appearance="fill">
+                        <mat-label>Savings Type</mat-label>
+                        <mat-select formControlName="savingsType">
+                            <mat-option value="FD">FD</mat-option>
+                            <mat-option value="SIP">SIP</mat-option>
+                            <mat-option value="POST">POST</mat-option>
+                            <mat-option value="PPF">PPF</mat-option>
+                            <mat-option value="INSURANCE">INSURANCE</mat-option>
+                            <mat-option value="PF">PF</mat-option>
+                            <mat-option value="STOCKS">STOCKS</mat-option>
+                            <mat-option value="CRYPTO">CRYPTO</mat-option>
+                            <mat-option value="ACCOUNT BALANCE">ACCOUNT BALANCE</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <!-- SIP fields -->
+                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'SIP'">
+                        <mat-label>Due Date</mat-label>
+                        <input matInput type="date" formControlName="dueDate">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'SIP'">
+                        <mat-label>Current Value</mat-label>
+                        <input matInput type="number" formControlName="currentValue">
+                    </mat-form-field>
+                    <!-- FD/POST fields -->
+                    <mat-form-field appearance="fill"
+                        *ngIf="financeForm.value.savingsType === 'FD' || financeForm.value.savingsType === 'POST'">
+                        <mat-label>Maturity Amount</mat-label>
+                        <input matInput type="number" formControlName="maturityAmount">
+                    </mat-form-field>
+                    <!-- INSURANCE fields -->
+                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'INSURANCE'">
+                        <mat-label>Number of Installments</mat-label>
+                        <input matInput type="number" formControlName="numInstallments">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'INSURANCE'">
+                        <mat-label>Last Due Date</mat-label>
+                        <input matInput type="date" formControlName="lastDueDate">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'INSURANCE'">
+                        <mat-label>Maturity Amount</mat-label>
+                        <input matInput type="number" formControlName="maturityAmount">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
                         <mat-label>Maturity Date</mat-label>
                         <input matInput type="date" formControlName="maturityDate">
                     </mat-form-field>
                     <mat-form-field appearance="fill">
                         <mat-label>Note</mat-label>
                         <input matInput formControlName="note">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill"
+                        *ngIf="financeForm.value.savingsType === 'STOCKS' || financeForm.value.savingsType === 'CRYPTO' || financeForm.value.savingsType === 'PPF'">
+                        <mat-label>Current Value</mat-label>
+                        <input matInput type="number" formControlName="currentValue">
                     </mat-form-field>
                 </div>
 
@@ -134,7 +182,15 @@
 
     <!-- Finances List Grid (hidden when showAddForm is true) -->
     <div *ngIf="finances.length > 0 && !showAddForm" class="finance-list-grid">
-        <mat-card *ngFor="let f of filteredFinances" class="finance-list-item-card">
+        <mat-card *ngFor="let f of filteredFinances" class="finance-list-item-card" style="position: relative;">
+            <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 8px; z-index: 2;">
+                <button mat-icon-button style="color: #FFD600;" (click)="editFinance(f)">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button style="color: #F44336;" (click)="deleteFinance(f.id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
             <mat-checkbox style="margin-bottom: 8px;" [checked]="selectedFinanceIds.has(f.id!)"
                 (change)="toggleSelection(f.id!)">
             </mat-checkbox>
@@ -144,39 +200,36 @@
                     <div *ngSwitchCase="1">
                         <strong>Income:</strong> {{ f.source }} ({{ f.amount | currency:'INR':'symbol' }})<br>
                         <small>
-                            Date: {{ f.date }}<br>
-                            Note: {{ f.note }}
+                            <span *ngIf="f.date">Date: {{ f.date }}<br></span>
+                            <span *ngIf="f.note">Note: {{ f.note }}</span>
                         </small>
                     </div>
                     <!-- Expense Card -->
                     <div *ngSwitchCase="2">
                         <strong>Expense:</strong> {{ f.category }} ({{ f.amount | currency:'INR':'symbol' }})<br>
                         <small>
-                            Date: {{ f.date }}<br>
-                            Due Date: {{ f.dueDate }}<br>
-                            Payment Method: {{ f.paymentMethod }}<br>
-                            Note: {{ f.note }}
+                            <span *ngIf="f.date">Date: {{ f.date }}<br></span>
+                            <span *ngIf="f.dueDate">Due Date: {{ f.dueDate }}<br></span>
+                            <span *ngIf="f.paymentMethod">Payment Method: {{ f.paymentMethod }}<br></span>
+                            <span *ngIf="f.note">Note: {{ f.note }}</span>
                         </small>
                     </div>
                     <!-- Savings Card -->
                     <div *ngSwitchCase="3">
                         <strong>Savings:</strong> {{ f.goal }} ({{ f.amount | currency:'INR':'symbol' }})<br>
                         <small>
-                            Date: {{ f.date }}<br>
-                            Maturity Date: {{ f.maturityDate }}<br>
-                            Source: {{ f.source }}<br>
-                            Note: {{ f.note }}
+                            <span *ngIf="f.savingsType">Savings Type: {{ f.savingsType }}<br></span>
+                            <span *ngIf="f.date">Date: {{ f.date }}<br></span>
+                            <span *ngIf="f.maturityDate">Maturity Date: {{ f.maturityDate }}<br></span>
+                            <span *ngIf="f.source">Source: {{ f.source }}<br></span>
+                            <span *ngIf="f.note">Note: {{ f.note }}</span>
                         </small>
                     </div>
                 </ng-container>
             </mat-card-content>
-            <mat-card-actions align="end">
-                <button mat-mini-button color="primary" (click)="editFinance(f)">Edit</button>
-                <button mat-mini-button color="warn" (click)="deleteFinance(f.id)">Delete</button>
-            </mat-card-actions>
         </mat-card>
     </div>
-    <div *ngIf="finances.length === 0 && !showAddForm">
-        <p>No finance records found.</p>
+    <div *ngIf="filteredFinances.length === 0 && !showAddForm">
+        <p>No records found.</p>
     </div>
 </div>
