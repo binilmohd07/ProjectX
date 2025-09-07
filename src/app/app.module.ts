@@ -10,6 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -37,6 +38,7 @@ import { FinanceComponent } from './components/dashboard/finance/finance.compone
     MatIconModule,
     MatMenuModule,
     MatToolbarModule,
+    MatCheckboxModule,
     BrowserAnimationsModule,
     AppRoutingModule
   ],

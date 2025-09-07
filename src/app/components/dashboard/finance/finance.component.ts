@@ -14,6 +14,9 @@ export class FinanceComponent implements OnInit {
   editMode = false;
   editId: string | null = null;
   user: any;
+  selectedType: number | null = null;
+  selectedFinanceIds: Set<string> = new Set();
+  showAddForm = false;
 
   constructor(
     private financesService: FinancesService,
@@ -56,20 +59,23 @@ export class FinanceComponent implements OnInit {
     if (this.editMode && this.editId) {
       this.financesService.updateFinance(this.editId, this.financeForm.value).then(() => {
         this.resetForm();
-        this.loadFinances(); // Refresh after update
+        this.hideAddFinanceForm();
+        this.loadFinances();
       });
     } else {
       this.financesService.addFinance(this.financeForm.value, this.user.uid).then(() => {
         this.resetForm();
+        this.hideAddFinanceForm();
         this.loadFinances();
       });
     }
   }
 
   editFinance(finance: Finance) {
-    this.financeForm.patchValue(finance);
     this.editMode = true;
-    this.editId = finance.id || null;
+    this.editId = finance.id ?? null;
+    this.financeForm.patchValue(finance);
+    this.showAddForm = true;
   }
 
   deleteFinance(id: string | undefined) {
@@ -82,12 +88,7 @@ export class FinanceComponent implements OnInit {
   }
 
   resetForm() {
-    this.financeForm.reset({
-      type: 1,
-      userId: '',
-      amount: 0,
-      date: ''
-    });
+    this.financeForm.reset();
     this.editMode = false;
     this.editId = null;
   }
@@ -127,5 +128,55 @@ export class FinanceComponent implements OnInit {
     Promise.all(samples.map(sample => this.financesService.addFinance(sample, this.user.uid))).then(() => {
       this.loadFinances(); // Refresh after adding samples
     });
+  }
+
+  getTotal(type: number): number {
+    return this.finances
+      .filter(f => f.type === type)
+      .reduce((sum, f) => sum + (f.amount || 0), 0);
+  }
+
+  setTypeFilter(type: number | null) {
+    this.selectedType = type;
+  }
+
+  get filteredFinances(): Finance[] {
+    return this.selectedType === null
+      ? this.finances
+      : this.finances.filter(fin => fin.type === this.selectedType);
+  }
+
+  toggleSelectAll(selectAll: boolean) {
+    if (selectAll) {
+      this.selectedFinanceIds = new Set(this.filteredFinances.map(f => f.id!));
+    } else {
+      this.selectedFinanceIds.clear();
+    }
+  }
+
+  toggleSelection(id: string) {
+    if (this.selectedFinanceIds.has(id)) {
+      this.selectedFinanceIds.delete(id);
+    } else {
+      this.selectedFinanceIds.add(id);
+    }
+  }
+
+  deleteSelectedFinances() {
+    const ids = Array.from(this.selectedFinanceIds);
+    Promise.all(ids.map(id => this.financesService.deleteFinance(id))).then(() => {
+      this.selectedFinanceIds.clear();
+      this.loadFinances();
+    });
+  }
+
+  showAddFinanceForm() {
+    this.editMode = false;
+    this.financeForm.reset();
+    this.showAddForm = true;
+  }
+
+  hideAddFinanceForm() {
+    this.showAddForm = false;
   }
 }
