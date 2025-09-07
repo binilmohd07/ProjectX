@@ -12,12 +12,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { provideHttpClient } from '@angular/common/http';
 import { MatMenuModule } from '@angular/material/menu';
+import { FinanceComponent } from './components/dashboard/finance/finance.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    DashboardComponent
+    DashboardComponent,
+    FinanceComponent
   ],
   imports: [
     BrowserModule,
@@ -26,7 +28,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatButtonModule,
     MatCardModule,
     MatToolbarModule,
-    MatMenuModule
+    MatMenuModule,
   ],
   providers: [
     provideAnimationsAsync(),

@@ -1,0 +1,6 @@
+<button (click)="addSample()">Add Sample Finance</button>
+<ul>
+    <li *ngFor="let finance of finances">
+        {{ finance.name }} - {{ finance.type }} - {{ finance.remarks }}
+    </li>
+</ul>

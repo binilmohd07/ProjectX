@@ -2,7 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
-const firebaseConfig = {
+export const firebaseConfig = {
     apiKey: "AIzaSyA3d6vOat56mbcTyj1l1TwRh0_gc4ULCAA",
     authDomain: "projectx-8945b.firebaseapp.com",
     // authDomain: "localhost:4200/auth/callback",
