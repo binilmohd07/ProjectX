@@ -227,7 +227,7 @@ export class FinanceComponent implements OnInit {
 
   getTotal(type: number): number {
     return this.finances
-      .filter(f => f.type === type)
+      .filter(f => f.type === type && f.userId === this.user?.uid)
       .reduce((sum, f) => sum + (f.amount || 0), 0);
   }
 
@@ -239,9 +239,15 @@ export class FinanceComponent implements OnInit {
   }
 
   get filteredFinances(): Finance[] {
-    return this.selectedType === null
-      ? this.finances
-      : this.finances.filter(fin => fin.type === this.selectedType);
+    let list = this.finances;
+    if (this.selectedType !== null) {
+      list = list.filter(f => f.type === this.selectedType);
+    }
+    // Filter by logged-in user
+    if (this.user?.uid) {
+      list = list.filter(f => f.userId === this.user.uid);
+    }
+    return list;
   }
 
   toggleSelectAll(selectAll: boolean) {

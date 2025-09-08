@@ -30,12 +30,12 @@
     <!-- ...other tiles... -->
 
     <!-- Finances Tile -->
-    <mat-card class="dashboard-tile finances-tile" style="cursor:pointer;" (click)="goToFinances()"
+    <mat-card class="dashboard-tile finances-tile summary-tile" style="cursor:pointer;" (click)="goToFinances()"
         *ngIf="!isFinancesPage">
         <mat-card-title>Finances</mat-card-title>
         <mat-card-content>
-            <mat-icon style="font-size: 48px; color: #1976d2;">account_balance_wallet</mat-icon>
-            <div style="margin-top: 8px;">Manage your finances</div>
+            <mat-icon style="font-size: 48px; color: #1976d2; margin-bottom: 18px;">account_balance_wallet</mat-icon>
+            <div class="summary-amount" style="margin-bottom: 10px;">Manage your finances</div>
         </mat-card-content>
     </mat-card>
 </div>
