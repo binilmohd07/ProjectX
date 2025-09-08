@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,19 +8,24 @@ import { Router } from '@angular/router';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
+  user: any;
+  isFinancesPage = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {
-    this.getLoggedInUserDetails()
+    this.getLoggedInUserDetails();
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.isFinancesPage = event.urlAfterRedirects.includes('/dashboard/finances');
+      }
+    });
   }
-  user: any;
-
 
   getLoggedInUserDetails() {
-    this.user = this.authService.getUser()
-    console.log(this.user)
+    this.user = this.authService.getUser();
+    console.log(this.user);
   }
 
   logout() {
@@ -33,5 +38,13 @@ export class DashboardComponent {
   onSettings() {
     // TODO: Implement settings navigation or dialog
     alert('Settings clicked!');
+  }
+
+  goToFinances() {
+    this.router.navigate(['dashboard/finances']);
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 }

@@ -216,7 +216,7 @@
                     </div>
                     <!-- Savings Card -->
                     <div *ngSwitchCase="3">
-                        <strong>Savings:</strong> {{ f.goal }} ({{ f.amount | currency:'INR':'symbol' }})<br>
+                        <strong>Savings:</strong> {{ f.source }} ({{ f.amount | currency:'INR':'symbol' }})<br>
                         <small>
                             <span *ngIf="f.savingsType">Savings Type: {{ f.savingsType }}<br></span>
                             <span *ngIf="f.date">Date: {{ f.date }}<br></span>
