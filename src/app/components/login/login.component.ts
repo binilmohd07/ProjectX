@@ -20,6 +20,7 @@ export class LoginComponent {
     this.authService.loginWithGoogle().then(res => {
       this.user = res.user;
       this.router.navigate(['/dashboard']);
+      // this.router.navigate(['/finance']);
 
     });
   }

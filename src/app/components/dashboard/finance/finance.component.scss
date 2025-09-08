@@ -1,0 +1,84 @@
+.finance-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.finance-form .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.form-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+}
+
+.finance-list-card {
+    margin-top: 24px;
+}
+
+.finance-list-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.list-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+mat-list-item {
+    align-items: flex-start !important;
+}
+
+.finance-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 16px;
+}
+
+.finance-list-item-card {
+    min-width: 0;
+}
+
+.finance-summary-tiles {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    justify-content: center;
+}
+
+.summary-tile {
+    flex: 1;
+    min-width: 180px;
+    text-align: center;
+}
+
+.summary-amount {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.income-tile .summary-amount {
+    color: #388e3c;
+}
+
+.expense-tile .summary-amount {
+    color: #d32f2f;
+}
+
+.savings-tile .summary-amount {
+    color: #fbc02d;
+}
