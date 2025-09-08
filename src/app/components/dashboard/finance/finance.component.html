@@ -182,31 +182,39 @@
 
     <!-- Finances List Grid (hidden when showAddForm is true) -->
     <div *ngIf="finances.length > 0 && !showAddForm" class="finance-list-grid">
-        <mat-card *ngFor="let f of filteredFinances" class="finance-list-item-card" style="position: relative;">
-            <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 8px; z-index: 2;">
-                <button mat-icon-button style="color: #FFD600;" (click)="editFinance(f)">
+        <mat-card *ngFor="let f of filteredFinances" [ngClass]="{
+                'finance-list-item-card': true,
+                'income-card': f.type === 1,
+                'expense-card': f.type === 2,
+                'savings-card': f.type === 3
+            }">
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <mat-checkbox [checked]="selectedFinanceIds.has(f.id!)" (change)="toggleSelection(f.id!)"
+                    aria-label="Select"></mat-checkbox>
+                <button mat-icon-button style="background: transparent; color: #FFD600;" (click)="editFinance(f)"
+                    aria-label="Edit">
                     <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button style="color: #F44336;" (click)="deleteFinance(f.id)">
+                <button mat-icon-button style="background: transparent; color: #F44336;" (click)="deleteFinance(f.id)"
+                    aria-label="Delete">
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
-            <mat-checkbox style="margin-bottom: 8px;" [checked]="selectedFinanceIds.has(f.id!)"
-                (change)="toggleSelection(f.id!)">
-            </mat-checkbox>
             <mat-card-content>
                 <ng-container [ngSwitch]="f.type">
-                    <!-- Income Card -->
                     <div *ngSwitchCase="1">
-                        <strong>Income:</strong> {{ f.source }} ({{ f.amount | currency:'INR':'symbol' }})<br>
+                        <mat-card-title>Income</mat-card-title>
+                        <strong>{{ f.source }}</strong>
+                        <div class="summary-amount">{{ f.amount | currency:'INR':'symbol' }}</div>
                         <small>
                             <span *ngIf="f.date">Date: {{ f.date }}<br></span>
                             <span *ngIf="f.note">Note: {{ f.note }}</span>
                         </small>
                     </div>
-                    <!-- Expense Card -->
                     <div *ngSwitchCase="2">
-                        <strong>Expense:</strong> {{ f.category }} ({{ f.amount | currency:'INR':'symbol' }})<br>
+                        <mat-card-title>Expense</mat-card-title>
+                        <strong>{{ f.category }}</strong>
+                        <div class="summary-amount">{{ f.amount | currency:'INR':'symbol' }}</div>
                         <small>
                             <span *ngIf="f.date">Date: {{ f.date }}<br></span>
                             <span *ngIf="f.dueDate">Due Date: {{ f.dueDate }}<br></span>
@@ -214,9 +222,10 @@
                             <span *ngIf="f.note">Note: {{ f.note }}</span>
                         </small>
                     </div>
-                    <!-- Savings Card -->
                     <div *ngSwitchCase="3">
-                        <strong>Savings:</strong> {{ f.source }} ({{ f.amount | currency:'INR':'symbol' }})<br>
+                        <mat-card-title>Savings</mat-card-title>
+                        <strong>{{ f.goal }}</strong>
+                        <div class="summary-amount">{{ f.amount | currency:'INR':'symbol' }}</div>
                         <small>
                             <span *ngIf="f.savingsType">Savings Type: {{ f.savingsType }}<br></span>
                             <span *ngIf="f.date">Date: {{ f.date }}<br></span>
