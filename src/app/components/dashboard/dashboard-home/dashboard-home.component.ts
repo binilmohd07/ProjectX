@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-home',
   templateUrl: './dashboard-home.component.html',
-  styleUrl: './dashboard-home.component.scss'
+  styleUrls: ['./dashboard-home.component.scss']
 })
 export class DashboardHomeComponent {
   chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -24,4 +25,21 @@ export class DashboardHomeComponent {
     responsive: true
   };
 
+  isFinancesPage = false;
+
+  constructor(private router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.isFinancesPage = event.urlAfterRedirects.includes('/dashboard/finances');
+      }
+    });
+  }
+
+  goToFinances() {
+    this.router.navigate(['dashboard/finances']);
+  }
+
+  goToTodoList() {
+    this.router.navigate(['dashboard/to-do']);
+  }
 }

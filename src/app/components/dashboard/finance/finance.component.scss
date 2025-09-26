@@ -4,6 +4,7 @@
     gap: 32px;
     max-width: 900px;
     margin: 0 auto;
+    padding: 24px 32px;
 }
 
 .finance-form .form-row {
@@ -179,5 +180,9 @@ mat-list-item {
 
     .summary-tile {
         min-width: 0;
+    }
+
+    .finance-container {
+        padding: 12px 8px;
     }
 }

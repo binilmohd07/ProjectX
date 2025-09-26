@@ -1,0 +1,134 @@
+.todo-list-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.todo-card {
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08), 0 1.5px 6px rgba(0, 0, 0, 0.04);
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0eafc 100%);
+    display: flex;
+    align-items: center;
+    min-width: 260px;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+    transition: box-shadow 0.18s, background 0.18s;
+
+    &:hover {
+        box-shadow: 0 6px 24px rgba(25, 118, 210, 0.18), 0 2px 8px rgba(0, 0, 0, 0.10);
+        background: linear-gradient(135deg, #e3f0ff 0%, #f5f7fa 100%);
+    }
+}
+
+.todo-card-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.todo-details {
+    display: flex;
+    flex-direction: column;
+    margin-left: 18px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.todo-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #222;
+    transition: color 0.2s;
+    word-break: break-word;
+}
+
+.todo-date {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 2px;
+    word-break: break-word;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+.todo-form-card {
+    margin-bottom: 24px;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08), 0 1.5px 6px rgba(0, 0, 0, 0.04);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0eafc 100%);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-fields {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.form-field {
+    flex: 1 1 220px;
+    min-width: 180px;
+}
+
+.form-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+
+    .todo-card,
+    .todo-form-card {
+        max-width: 100%;
+        padding: 14px 8px;
+    }
+
+    .form-fields {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 700px) {
+    .todo-list-cards {
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .todo-card,
+    .todo-form-card {
+        padding: 10px 4px;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .todo-title {
+        font-size: 1rem;
+    }
+
+    .todo-details {
+        margin-left: 10px;
+    }
+
+    .form-fields {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-actions {
+        justify-content: center;
+    }
+}

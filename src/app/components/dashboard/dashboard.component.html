@@ -2,7 +2,7 @@
     <span class="header-title" style="cursor:pointer;" (click)="goToDashboard()">ProjectX</span>
     <span class="spacer"></span>
     <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Profile menu">
-        <img *ngIf="user?.photoURL" [src]="user.photoURL" alt="Profile" class="profile-avatar" />
+        <img *ngIf="user?.photoURL" [src]="user.photoURL" alt="P" class="profile-avatar" />
         <mat-icon *ngIf="!user?.photoURL">account_circle</mat-icon>
     </button>
 </mat-toolbar>
@@ -24,20 +24,5 @@
         </button>
     </div>
 </mat-menu>
-
-<div class="dashboard-tiles" style="display: flex; gap: 24px; margin: 32px 0;">
-    <!-- Example: Existing tiles -->
-    <!-- ...other tiles... -->
-
-    <!-- Finances Tile -->
-    <mat-card class="dashboard-tile finances-tile summary-tile" style="cursor:pointer;" (click)="goToFinances()"
-        *ngIf="!isFinancesPage">
-        <mat-card-title>Finances</mat-card-title>
-        <mat-card-content>
-            <mat-icon style="font-size: 48px; color: #1976d2; margin-bottom: 18px;">account_balance_wallet</mat-icon>
-            <div class="summary-amount" style="margin-bottom: 10px;">Manage your finances</div>
-        </mat-card-content>
-    </mat-card>
-</div>
 
 <router-outlet></router-outlet>
