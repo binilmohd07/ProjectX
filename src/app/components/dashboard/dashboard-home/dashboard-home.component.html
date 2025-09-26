@@ -1,1 +1,17 @@
-<p>Dashboard-home works!</p>
+<div class="dashboard-tiles">
+    <!-- Finances Tile -->
+    <mat-card class="dashboard-tile finances-tile summary-tile" (click)="goToFinances()">
+        <mat-card-title>Finances</mat-card-title>
+        <mat-card-content>
+            <mat-icon>account_balance_wallet</mat-icon>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- To-do List Tile -->
+    <mat-card class="dashboard-tile todo-tile summary-tile" (click)="goToTodoList()">
+        <mat-card-title>To-do List</mat-card-title>
+        <mat-card-content>
+            <mat-icon>check_circle</mat-icon>
+        </mat-card-content>
+    </mat-card>
+</div>

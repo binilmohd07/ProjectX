@@ -18,13 +18,17 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { FinanceComponent } from './components/dashboard/finance/finance.component';
+import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
+import { TodoListComponent } from './components/dashboard/todo-list/todo-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    FinanceComponent
+    FinanceComponent,
+    DashboardHomeComponent,
+    TodoListComponent
   ],
   imports: [
     BrowserModule,

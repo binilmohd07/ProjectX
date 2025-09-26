@@ -1,0 +1,52 @@
+<div class="todo-list-container">
+    <h2>To-do List</h2>
+    <form [formGroup]="todoForm" (ngSubmit)="addTask()" class="todo-form">
+        <mat-card class="todo-form-card">
+            <mat-card-content>
+                <div class="form-fields">
+                    <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>New Task</mat-label>
+                        <input matInput formControlName="task" required>
+                        <mat-error *ngIf="todoForm.get('task')?.hasError('required')">
+                            Task is required.
+                        </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Due Date (optional)</mat-label>
+                        <input matInput type="date" formControlName="dueDate">
+                        <mat-error *ngIf="todoForm.get('dueDate')?.hasError('invalidDate')">
+                            Please enter a valid date.
+                        </mat-error>
+                        <mat-error *ngIf="todoForm.get('dueDate')?.hasError('pastDate')">
+                            Date must be today or later.
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-actions">
+                    <button mat-raised-button color="primary" type="submit"
+    [disabled]="
+        todoForm.invalid ||
+        (todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid)
+    ">
+    Add
+</button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </form>
+    <div class="todo-list-cards">
+        <mat-card *ngFor="let task of tasks; let i = index" class="todo-card">
+            <div class="todo-card-content">
+                <mat-checkbox [checked]="task.completed" (change)="toggleTask(i)"></mat-checkbox>
+                <div class="todo-details">
+                    <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
+                    <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate }}</span>
+                </div>
+                <span class="spacer"></span>
+                <button mat-icon-button color="warn" (click)="removeTask(i)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+        </mat-card>
+    </div>
+</div>

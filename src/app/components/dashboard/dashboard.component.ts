@@ -40,10 +40,6 @@ export class DashboardComponent {
     alert('Settings clicked!');
   }
 
-  goToFinances() {
-    this.router.navigate(['dashboard/finances']);
-  }
-
   goToDashboard() {
     this.router.navigate(['/dashboard']);
   }
