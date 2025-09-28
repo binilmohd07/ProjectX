@@ -89,6 +89,16 @@
     justify-content: flex-end;
 }
 
+.page-header {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+    // border-radius: 14px;
+    // box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08), 0 1.5px 6px rgba(0, 0, 0, 0.04);
+    // background: linear-gradient(135deg, #e0eafc 0%, #f5f7fa 100%);
+}
+
 @media (max-width: 900px) {
 
     .todo-card,
