@@ -16,6 +16,7 @@ export class ExpensesComponent implements OnInit {
   ];
   expenseForm: FormGroup;
   editingExpenseId: string | null = null;
+  showForm: boolean = false;
 
   constructor(private fb: FormBuilder, private expensesService: ExpensesService) {
     this.expenseForm = this.fb.group({
@@ -137,5 +138,37 @@ export class ExpensesComponent implements OnInit {
         netAmountMonthly: null
       });
     }
+  }
+
+  getFormattedDueDate(expense: Expense): string {
+    if (!expense.dueDate) return '';
+    const dateObj = new Date(expense.dueDate);
+    const day = dateObj.getDate();
+    const suffix = (day === 1) ? 'st' : (day === 2) ? 'nd' : (day === 3) ? 'rd' : 'th';
+
+    if (expense.frequency === 'monthly') {
+      return `${day}${suffix} of every month`;
+    } else if (expense.frequency === 'yearly') {
+      return `${day}${suffix} of every year`;
+    } else {
+      // For weekly or one-time, just show the date in a readable format
+      return dateObj.toLocaleDateString();
+    }
+  }
+
+  round(value: number, decimals: number = 2): number {
+    if (typeof value !== 'number') return value;
+    return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  }
+
+  onCreateNew(): void {
+    this.showForm = true;
+    this.editingExpenseId = null;
+    this.expenseForm.reset();
+  }
+
+  onFormSubmit(): void {
+    this.onSubmit();
+    this.showForm = false;
   }
 }
