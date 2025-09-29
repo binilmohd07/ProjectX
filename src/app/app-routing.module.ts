@@ -7,6 +7,7 @@ import { LoginGuard } from './services/guards/login.guard';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { FinanceComponent } from './components/dashboard/finance/finance.component';
 import { TodoListComponent } from './components/dashboard/todo-list/todo-list.component';
+import { ExpensesComponent } from './components/dashboard/finance/expenses/expenses.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -26,6 +27,15 @@ const routes: Routes = [
         component: TodoListComponent,
         canActivate: [AuthGuard],
       },
+      {
+        path: 'finance',
+        children: [
+          {
+            path: 'expenses',
+            component: ExpensesComponent
+          }
+        ]
+      }
     ],
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
