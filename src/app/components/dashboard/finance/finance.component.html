@@ -13,7 +13,7 @@
                 <span class="summary-amount">{{ getTotal(1) | currency:'INR':'symbol' }}</span>
             </mat-card-content>
         </mat-card>
-        <mat-card class="summary-tile expense-tile" (click)="setTypeFilter(2)" style="cursor:pointer">
+        <mat-card class="summary-tile expense-tile" (click)="goToExpenses()" style="cursor:pointer">
             <mat-card-title>Expenses</mat-card-title>
             <mat-card-content>
                 <span class="summary-amount">{{ getTotal(2) | currency:'INR':'symbol' }}</span>
@@ -242,3 +242,5 @@
         <p>No records found.</p>
     </div>
 </div>
+
+<router-outlet></router-outlet>

@@ -1,0 +1,10 @@
+.expenses-card-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.expense-card {
+    width: 300px;
+    margin: 8px;
+}

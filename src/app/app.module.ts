@@ -12,6 +12,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -20,6 +22,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { FinanceComponent } from './components/dashboard/finance/finance.component';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { TodoListComponent } from './components/dashboard/todo-list/todo-list.component';
+import { ExpensesComponent } from './components/dashboard/finance/expenses/expenses.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +31,8 @@ import { TodoListComponent } from './components/dashboard/todo-list/todo-list.co
     DashboardComponent,
     FinanceComponent,
     DashboardHomeComponent,
-    TodoListComponent
+    TodoListComponent,
+    ExpensesComponent
   ],
   imports: [
     BrowserModule,
@@ -44,7 +48,9 @@ import { TodoListComponent } from './components/dashboard/todo-list/todo-list.co
     MatToolbarModule,
     MatCheckboxModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    CommonModule,
+    MatTableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

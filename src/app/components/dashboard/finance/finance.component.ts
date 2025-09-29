@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Finance, FinancesService } from '../../../services/finances/finances.service';
 import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-finance',
@@ -21,7 +22,8 @@ export class FinanceComponent implements OnInit {
   constructor(
     private financesService: FinancesService,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.financeForm = this.fb.group({
       type: [1, Validators.required],
@@ -282,5 +284,9 @@ export class FinanceComponent implements OnInit {
 
   hideAddFinanceForm() {
     this.showAddForm = false;
+  }
+
+  goToExpenses() {
+    this.router.navigate(['/dashboard/finance/expenses']);
   }
 }
