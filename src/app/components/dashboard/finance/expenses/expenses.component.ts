@@ -46,6 +46,7 @@ export class ExpensesComponent implements OnInit {
   editExpense(expense: Expense): void {
     this.editingExpenseId = expense.expenseId || null; // Assign null if expenseId is undefined
     this.expenseForm.patchValue(expense);
+    this.showForm = true;
   }
 
   saveExpense(): void {

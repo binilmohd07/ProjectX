@@ -90,6 +90,21 @@
     margin-bottom: 8px;
 }
 
+.show-expenses-actions {
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    margin-top: 24px;
+    display: flex;
+}
+
+.expenses-header-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    gap: 8px;
+    margin-top: 24px;
+}
+
 @media (max-width: 600px) {
 
     .expense-form mat-card,
