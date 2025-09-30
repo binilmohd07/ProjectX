@@ -48,17 +48,26 @@
     gap: 12px;
 }
 
+.expenses-page-layout {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
 .expenses-table-wrapper {
     width: 100%;
+    max-width: 100vw;
     overflow-x: auto;
-    margin-bottom: 24px;
+    box-sizing: border-box;
 }
 
 .expenses-table {
     width: 100%;
-    min-width: 600px;
+    min-width: 0;
     border-radius: 8px;
     background: #fff;
+    box-sizing: border-box;
 }
 
 .chip {
@@ -69,6 +78,10 @@
     padding: 2px 12px;
     font-size: 13px;
     margin-right: 4px;
+    max-width: 100%;
+    word-break: keep-all;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .amount {
@@ -134,7 +147,7 @@
     }
 
     .expenses-table {
-        min-width: 100vw;
+        min-width: 0;
         width: 100vw;
         font-size: 12px;
     }
@@ -142,5 +155,16 @@
     .card-row {
         flex-direction: column;
         gap: 6px;
+    }
+
+    .expenses-page-layout {
+        padding: 0 4px;
+    }
+
+    .chip {
+        font-size: 12px;
+        padding: 2px 8px;
+        margin-bottom: 0;
+        max-width: 90vw;
     }
 }

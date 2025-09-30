@@ -172,4 +172,18 @@ export class ExpensesComponent implements OnInit {
     this.onSubmit();
     this.showForm = false;
   }
+
+  getTotal(key: 'amount' | 'netAmountYearly' | 'netAmountMonthly'): number {
+    return this.expenses.reduce((sum, expense) => sum + (Number(expense[key]) || 0), 0);
+  }
+
+  showSummary(): void {
+    const totalYearly = this.round(this.getTotal('netAmountYearly'));
+    const totalMonthly = this.round(this.getTotal('netAmountMonthly'));
+    alert(
+      `Expenses Summary:\n\n` +
+      `Total Yearly: ₹${totalYearly.toFixed(2)}\n` +
+      `Total Monthly: ₹${totalMonthly.toFixed(2)}`
+    );
+  }
 }

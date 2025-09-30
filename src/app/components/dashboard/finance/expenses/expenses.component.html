@@ -56,8 +56,9 @@
         <div class="expenses-header-actions">
             <button mat-raised-button color="primary" (click)="onCreateNew()">Create New</button>
             <button mat-button (click)="toggleView()">
-                Switch to {{ isTableView ? 'Card' : 'Table' }} View
+                {{ isTableView ? 'Card' : 'Table' }} View
             </button>
+            <button mat-stroked-button color="accent" (click)="showSummary()">Summary</button>
         </div>
 
         <!-- Table View -->
@@ -116,7 +117,8 @@
                 </mat-card-title>
                 <mat-card-content>
                     <div class="card-row">
-                        <span class="chip">{{ expense.frequency.charAt(0).toUpperCase() + expense.frequency.slice(1) }}</span>
+                        <span class="chip">{{ expense.frequency.charAt(0).toUpperCase() + expense.frequency.slice(1)
+                            }}</span>
                         <span class="chip">{{ getFormattedDueDate(expense) }}</span>
                     </div>
                     <div class="card-row">
@@ -133,4 +135,17 @@
             </mat-card>
         </div>
     </div>
+
+    <!-- Summary Dialog -->
+    <ng-template #summaryDialog>
+        <h2 mat-dialog-title>Expenses Summary</h2>
+        <mat-dialog-content>
+            <div>Total Amount: ₹{{ getTotal('amount') }}</div>
+            <div>Total Yearly: ₹{{ getTotal('netAmountYearly') }}</div>
+            <div>Total Monthly: ₹{{ getTotal('netAmountMonthly') }}</div>
+        </mat-dialog-content>
+        <mat-dialog-actions align="end">
+            <button mat-button mat-dialog-close>Close</button>
+        </mat-dialog-actions>
+    </ng-template>
 </div>
