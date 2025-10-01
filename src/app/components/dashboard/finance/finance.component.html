@@ -10,13 +10,14 @@
         <mat-card class="summary-tile expense-tile" (click)="goToExpenses()" style="cursor:pointer">
             <mat-card-title>Expenses</mat-card-title>
             <mat-card-content>
-                <span class="summary-amount">{{ getTotal(2) | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount">Yearly: {{ totalYearlyExpenses | currency:'INR':'symbol' }}</span><br>
+                <span class="summary-amount">Monthly: {{ totalMonthlyExpenses | currency:'INR':'symbol' }}</span>
             </mat-card-content>
         </mat-card>
         <mat-card class="summary-tile savings-tile" (click)="goToSavings()" style="cursor:pointer">
             <mat-card-title>Savings</mat-card-title>
             <mat-card-content>
-                <span class="summary-amount">{{ getTotal(3) | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount">{{ totalSavings | currency:'INR':'symbol' }}</span>
             </mat-card-content>
         </mat-card>
     </div>

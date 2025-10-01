@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Expense, ExpensesService } from '../../../../services/finances/expenses.service';
+import { AuthService } from '../../../../services/auth.service';
+import { FinanceSyncService } from '../../../../services/finances/finance-sync.service';
 
 
 @Component({
@@ -17,8 +19,14 @@ export class ExpensesComponent implements OnInit {
   expenseForm: FormGroup;
   editingExpenseId: string | null = null;
   showForm: boolean = false;
+  user: any;
 
-  constructor(private fb: FormBuilder, private expensesService: ExpensesService) {
+  constructor(
+    private fb: FormBuilder,
+    private expensesService: ExpensesService,
+    private authService: AuthService,
+    private financeSyncService: FinanceSyncService
+  ) {
     this.expenseForm = this.fb.group({
       expenseName: ['', Validators.required],
       frequency: ['', Validators.required],
@@ -27,6 +35,7 @@ export class ExpensesComponent implements OnInit {
       netAmountYearly: [null],
       netAmountMonthly: [null]
     });
+    this.user = this.authService.getUser();
   }
 
   ngOnInit(): void {
@@ -108,12 +117,16 @@ export class ExpensesComponent implements OnInit {
           this.editingExpenseId = null;
           this.expenseForm.reset();
           this.refreshExpenses();
+          this.financeSyncService.notifyExpenseChanged();
         });
       } else {
         // Add new expense
-        this.expensesService.addExpense(expense, 'userId').then(() => {
+        const googleUserId = this.authService.getUser()?.uid || '';
+        expense.userId = googleUserId;
+        this.expensesService.addExpense(expense, googleUserId).then(() => {
           this.expenseForm.reset();
           this.refreshExpenses();
+          this.financeSyncService.notifyExpenseChanged();
         });
       }
     }
