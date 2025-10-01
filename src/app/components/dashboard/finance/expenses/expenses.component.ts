@@ -168,9 +168,16 @@ export class ExpensesComponent implements OnInit {
     this.expenseForm.reset();
   }
 
+  onCancel(): void {
+    this.showForm = false;
+    this.editingExpenseId = null;
+    this.expenseForm.reset();
+  }
+
   onFormSubmit(): void {
     this.onSubmit();
     this.showForm = false;
+    this.editingExpenseId = null;
   }
 
   getTotal(key: 'amount' | 'netAmountYearly' | 'netAmountMonthly'): number {

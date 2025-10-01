@@ -287,6 +287,10 @@ export class FinanceComponent implements OnInit {
   }
 
   goToExpenses() {
-    this.router.navigate(['/dashboard/finance/expenses']);
+    this.router.navigate(['/dashboard/finances/expenses']);
+  }
+
+  goToSavings() {
+    this.router.navigate(['/dashboard/finances/savings']);
   }
 }
