@@ -28,6 +28,9 @@ export class FinanceComponent implements OnInit {
   totalSavings: number = 0;
   totalYearlyExpenses: number = 0;
   totalMonthlyExpenses: number = 0;
+  totalSavingsAmount: number = 0;
+  totalSavingsCurrent: number = 0;
+  totalSavingsMaturity: number = 0;
 
   constructor(
     private financesService: FinancesService,
@@ -78,6 +81,10 @@ export class FinanceComponent implements OnInit {
         this.financeSyncService.expenseChanged$.subscribe(() => {
           this.loadExpenses();
         });
+        // Subscribe to savings changes
+        this.financeSyncService.savingsChanged$.subscribe(() => {
+          this.loadSavings();
+        });
       }
     }, 200);
   }
@@ -93,7 +100,10 @@ export class FinanceComponent implements OnInit {
   loadSavings() {
     this.savingsService.getSavings().subscribe(data => {
       this.savings = data.filter(s => s.userId === this.user?.uid);
-      this.totalSavings = this.savings.reduce((sum, s) => sum + (s.currentValue || s.maturityAmount || 0), 0);
+      this.totalSavingsAmount = this.savings.reduce((sum, s) => sum + (s.amount || 0), 0);
+      this.totalSavingsCurrent = this.savings.reduce((sum, s) => sum + (s.currentValue || 0), 0);
+      this.totalSavingsMaturity = this.savings.reduce((sum, s) => sum + (s.maturityAmount || 0), 0);
+      this.totalSavings = this.totalSavingsCurrent + this.totalSavingsMaturity; // legacy, can be removed if not used elsewhere
     });
   }
 

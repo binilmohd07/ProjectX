@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SavingsService } from '../../../../services/finances/savings.service';
 import { AuthService } from '../../../../services/auth.service';
+import { FinanceSyncService } from '../../../../services/finances/finance-sync.service';
 
 @Component({
   selector: 'app-savings',
@@ -18,6 +19,8 @@ export class SavingsComponent implements OnInit {
 
   isTableView = true;
   savingsList: any[] = [];
+  groupedSavings: { [type: string]: any[] } = {};
+  expandedGroups: { [type: string]: boolean } = {};
   displayedColumns: string[] = ['name', 'savingsType', 'maturityDate', 'currentValue', 'maturityAmount'];
 
   editingSavingId: string | null = null;
@@ -27,8 +30,11 @@ export class SavingsComponent implements OnInit {
       name: saving.name,
       savingsType: saving.savingsType,
       maturityDate: saving.maturityDate,
+      dueDate: saving.dueDate || '',
+      appName: saving.appName || '', // <-- Add this line
       currentValue: saving.currentValue,
-      maturityAmount: saving.maturityAmount
+      maturityAmount: saving.maturityAmount,
+      amount: saving.amount
     });
     this.successMessage = '';
     this.showAddForm = true;
@@ -51,14 +57,18 @@ export class SavingsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private savingsService: SavingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private financeSyncService: FinanceSyncService
   ) {
     this.savingsForm = this.fb.group({
       name: ['', Validators.required],
       savingsType: ['', Validators.required],
       maturityDate: ['', Validators.required],
+      dueDate: ['', Validators.required],
+      appName: ['', Validators.required], // <-- Add this line
       currentValue: [0, [Validators.required, Validators.min(0)]],
-      maturityAmount: [0, [Validators.required, Validators.min(0)]]
+      maturityAmount: [0, [Validators.required, Validators.min(0)]],
+      amount: [0, [Validators.required, Validators.min(0)]]
     });
     this.user = this.authService.getUser();
   }
@@ -70,7 +80,23 @@ export class SavingsComponent implements OnInit {
   loadSavings(): void {
     this.savingsService.getSavings().subscribe((savings: any[]) => {
       this.savingsList = savings.filter((s: any) => s.userId === this.user?.uid);
+      this.groupedSavings = {};
+      this.savingsList.forEach(saving => {
+        const type = saving.savingsType;
+        if (!this.groupedSavings[type]) {
+          this.groupedSavings[type] = [];
+        }
+        this.groupedSavings[type].push(saving);
+      });
     });
+  }
+
+  toggleGroup(type: string): void {
+    // Collapse all groups except the one being toggled
+    Object.keys(this.expandedGroups).forEach(key => {
+      this.expandedGroups[key] = false;
+    });
+    this.expandedGroups[type] = !this.expandedGroups[type];
   }
 
   onSubmit(): void {
@@ -91,7 +117,9 @@ export class SavingsComponent implements OnInit {
             this.savingsForm.reset();
             this.submitted = false;
             this.editingSavingId = null;
+            this.showAddForm = false;
             this.loadSavings();
+            this.financeSyncService.notifySavingsChanged();
           })
           .catch(() => {
             this.successMessage = 'Error updating saving.';
@@ -102,7 +130,9 @@ export class SavingsComponent implements OnInit {
             this.successMessage = 'Saving added successfully!';
             this.savingsForm.reset();
             this.submitted = false;
+            this.showAddForm = false;
             this.loadSavings();
+            this.financeSyncService.notifySavingsChanged();
           })
           .catch(() => {
             this.successMessage = 'Error adding saving.';

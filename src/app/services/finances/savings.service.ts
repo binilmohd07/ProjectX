@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -12,8 +11,11 @@ export interface Saving {
   savingsType: string;
   userId: string;
   maturityDate: string;
+  dueDate: string;
+  appName: string;
   currentValue: number;
   maturityAmount: number;
+  amount: number;
 }
 
 @Injectable({
