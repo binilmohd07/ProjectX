@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Finance, FinancesService } from '../../../services/finances/finances.service';
+import { ExpensesService, Expense } from '../../../services/finances/expenses.service';
+import { SavingsService, Saving } from '../../../services/finances/savings.service';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
+import { FinanceSyncService } from '../../../services/finances/finance-sync.service';
 
 @Component({
   selector: 'app-finance',
@@ -19,11 +22,24 @@ export class FinanceComponent implements OnInit {
   selectedFinanceIds: Set<string> = new Set();
   showAddForm = false;
 
+  expenses: Expense[] = [];
+  savings: Saving[] = [];
+  totalExpenses: number = 0;
+  totalSavings: number = 0;
+  totalYearlyExpenses: number = 0;
+  totalMonthlyExpenses: number = 0;
+  totalSavingsAmount: number = 0;
+  totalSavingsCurrent: number = 0;
+  totalSavingsMaturity: number = 0;
+
   constructor(
     private financesService: FinancesService,
+    private expensesService: ExpensesService,
+    private savingsService: SavingsService,
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private financeSyncService: FinanceSyncService
   ) {
     this.financeForm = this.fb.group({
       type: [1, Validators.required],
@@ -46,14 +62,49 @@ export class FinanceComponent implements OnInit {
       lastDueDate: [''],
       maturityAmount: [''] // <-- Add this line
     });
-    this.getLoggedInUserDetails();
+    // Do NOT call getLoggedInUserDetails here
   }
   getLoggedInUserDetails() {
-    this.user = this.authService.getUser()
-    console.log(this.user)
+    this.user = this.authService.getUser();
+    console.log(this.user);
   }
   ngOnInit() {
     this.loadFinances();
+    // Wait for user to be available before loading expenses/savings
+    const waitForUser = setInterval(() => {
+      if (this.authService.getUser()?.uid) {
+        this.user = this.authService.getUser();
+        this.loadExpenses();
+        this.loadSavings();
+        clearInterval(waitForUser);
+        // Subscribe to expense changes
+        this.financeSyncService.expenseChanged$.subscribe(() => {
+          this.loadExpenses();
+        });
+        // Subscribe to savings changes
+        this.financeSyncService.savingsChanged$.subscribe(() => {
+          this.loadSavings();
+        });
+      }
+    }, 200);
+  }
+  loadExpenses() {
+    this.expensesService.getExpenses().subscribe(data => {
+      this.expenses = data.filter(e => e.userId === this.user?.uid);
+      this.totalExpenses = this.expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      this.totalYearlyExpenses = this.expenses.reduce((sum, e) => sum + (e.netAmountYearly || 0), 0);
+      this.totalMonthlyExpenses = this.expenses.reduce((sum, e) => sum + (e.netAmountMonthly || 0), 0);
+    });
+  }
+
+  loadSavings() {
+    this.savingsService.getSavings().subscribe(data => {
+      this.savings = data.filter(s => s.userId === this.user?.uid);
+      this.totalSavingsAmount = this.savings.reduce((sum, s) => sum + (s.amount || 0), 0);
+      this.totalSavingsCurrent = this.savings.reduce((sum, s) => sum + (s.currentValue || 0), 0);
+      this.totalSavingsMaturity = this.savings.reduce((sum, s) => sum + (s.maturityAmount || 0), 0);
+      this.totalSavings = this.totalSavingsCurrent + this.totalSavingsMaturity; // legacy, can be removed if not used elsewhere
+    });
   }
 
   loadFinances() {
@@ -227,11 +278,11 @@ export class FinanceComponent implements OnInit {
     });
   }
 
-  getTotal(type: number): number {
-    return this.finances
-      .filter(f => f.type === type && f.userId === this.user?.uid)
-      .reduce((sum, f) => sum + (f.amount || 0), 0);
-  }
+  // Deprecated: getTotal(type: number): number {
+  //   return this.finances
+  //     .filter(f => f.type === type && f.userId === this.user?.uid)
+  //     .reduce((sum, f) => sum + (f.amount || 0), 0);
+  // }
 
   setTypeFilter(type: number | null) {
     this.selectedType = type;
@@ -287,6 +338,10 @@ export class FinanceComponent implements OnInit {
   }
 
   goToExpenses() {
-    this.router.navigate(['/dashboard/finance/expenses']);
+    this.router.navigate(['/dashboard/finances/expenses']);
+  }
+
+  goToSavings() {
+    this.router.navigate(['/dashboard/finances/savings']);
   }
 }

@@ -1,0 +1,195 @@
+<div class="expenses-page-layout">
+    <!-- Add Savings Form -->
+    <div class="form-wrapper">
+
+        <div *ngIf="savingsList.length === 0 || editingSavingId !== null || showAddForm">
+            <div *ngIf="savingsList.length > 0 && editingSavingId !== null || showAddForm"
+                class="form-actions show-expenses-actions">
+                <button mat-stroked-button color="primary" type="button" (click)="cancelEdit()">Show Savings
+                    List</button>
+            </div>
+            <form [formGroup]="savingsForm" (ngSubmit)="onSubmit()" class="expense-form">
+                <mat-card>
+                    <mat-card-title>{{ editingSavingId ? 'Update Saving' : 'Add Saving' }}</mat-card-title>
+                    <mat-card-content>
+                        <div class="form-fields">
+                            <mat-form-field appearance="fill">
+                                <mat-label>Savings Name</mat-label>
+                                <input matInput formControlName="name" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['name'].invalid">Name is
+                                    required</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Savings Type</mat-label>
+                                <mat-select formControlName="savingsType" required>
+                                    <mat-option value="FD">FD</mat-option>
+                                    <mat-option value="SIP">SIP</mat-option>
+                                    <mat-option value="POST">POST</mat-option>
+                                    <mat-option value="PPF">PPF</mat-option>
+                                    <mat-option value="Insurance">Insurance</mat-option>
+                                    <mat-option value="PF">PF</mat-option>
+                                    <mat-option value="Stocks">Stocks</mat-option>
+                                    <mat-option value="Crypto">Crypto</mat-option>
+                                    <mat-option value="Account balance">Account balance</mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="submitted && savingsForm.controls['savingsType'].invalid">Type is
+                                    required</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Maturity Date</mat-label>
+                                <input matInput formControlName="maturityDate" type="date" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['maturityDate'].invalid">Maturity
+                                    date
+                                    is required</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Due Date</mat-label>
+                                <input matInput formControlName="dueDate" type="date" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['dueDate'].invalid">Due date is
+                                    required</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>App Name</mat-label>
+                                <input matInput formControlName="appName" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['appName'].invalid">App Name is
+                                    required</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Current Value</mat-label>
+                                <input matInput formControlName="currentValue" type="number" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['currentValue'].invalid">Current
+                                    value
+                                    is required and must be non-negative</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Maturity Amount</mat-label>
+                                <input matInput formControlName="maturityAmount" type="number" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['maturityAmount'].invalid">Maturity
+                                    amount is required and must be non-negative</mat-error>
+                            </mat-form-field>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Amount</mat-label>
+                                <input matInput formControlName="amount" type="number" required>
+                                <mat-error *ngIf="submitted && savingsForm.controls['amount'].invalid">Amount is
+                                    required and must be non-negative</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="form-actions">
+                            <button mat-raised-button color="primary" type="submit" [disabled]="savingsForm.invalid">
+                                {{ editingSavingId ? 'Update Saving' : 'Add Saving' }}
+                            </button>
+                            <button *ngIf="editingSavingId" mat-stroked-button color="warn" type="button"
+                                (click)="cancelEdit()">Cancel Edit</button>
+                        </div>
+                        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+                    </mat-card-content>
+                </mat-card>
+            </form>
+        </div>
+
+        <!-- Table/Card View Toggle -->
+        <div class="expenses-header-actions" style="display: flex; gap: 8px; align-items: center;">
+            <button mat-raised-button color="primary" (click)="onCreateNew()"
+                *ngIf="editingSavingId === null && !showAddForm">Create New</button>
+            <button mat-button (click)="isTableView = !isTableView" *ngIf="!showAddForm && editingSavingId === null">{{
+                isTableView ? 'Card' : 'Table' }} View</button>
+        </div>
+    </div>
+
+    <!-- Grouped Table View -->
+    <div class="expenses-table-wrapper" *ngIf="isTableView && !showAddForm && editingSavingId === null">
+        <div *ngFor="let type of groupedSavings | keyvalue">
+            <mat-card class="group-card">
+                <mat-card-title>
+                    <span class="chip">{{ type.key }}</span>
+                    <button mat-icon-button (click)="toggleGroup(type.key)">
+                        <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
+                            }}</mat-icon>
+                    </button>
+                </mat-card-title>
+                <mat-card-content *ngIf="expandedGroups[type.key]">
+                    <table mat-table [dataSource]="type.value" class="mat-elevation-z8 expenses-table">
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef> Name </th>
+                            <td mat-cell *matCellDef="let saving"> <strong>{{saving.name}}</strong> </td>
+                        </ng-container>
+                        <ng-container matColumnDef="appName">
+                            <th mat-header-cell *matHeaderCellDef> App Name </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.appName }}</span> </td>
+                        </ng-container>
+                        <ng-container matColumnDef="maturityDate">
+                            <th mat-header-cell *matHeaderCellDef> Maturity Date </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.maturityDate }}</span>
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="currentValue">
+                            <th mat-header-cell *matHeaderCellDef> Current Value </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="amount">₹{{ saving.currentValue
+                                    }}</span> </td>
+                        </ng-container>
+                        <ng-container matColumnDef="maturityAmount">
+                            <th mat-header-cell *matHeaderCellDef> Maturity Amount </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="amount">₹{{ saving.maturityAmount
+                                    }}</span>
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef> Actions </th>
+                            <td mat-cell *matCellDef="let saving">
+                                <button mat-icon-button color="primary"
+                                    (click)="editSaving(saving)"><mat-icon>edit</mat-icon></button>
+                                <button mat-icon-button color="warn"
+                                    (click)="deleteSaving(saving.savingId)"><mat-icon>delete</mat-icon></button>
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row
+                            *matHeaderRowDef="['name', 'appName', 'maturityDate', 'currentValue', 'maturityAmount', 'actions']">
+                        </tr>
+                        <tr mat-row
+                            *matRowDef="let row; columns: ['name', 'appName', 'maturityDate', 'currentValue', 'maturityAmount', 'actions'];">
+                        </tr>
+                    </table>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+    <!-- Grouped Card View -->
+    <div class="expenses-card-list" *ngIf="!isTableView && !showAddForm && editingSavingId === null">
+        <div *ngFor="let type of groupedSavings | keyvalue; let last = last"
+            style="width: 100vw; max-width: 100vw; box-sizing: border-box;">
+            <mat-card class="group-card" style="width: 100%; box-sizing: border-box;">
+                <mat-card-title>
+                    <span class="chip">{{ type.key }}</span>
+                    <button mat-icon-button (click)="toggleGroup(type.key)">
+                        <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
+                            }}</mat-icon>
+                    </button>
+                </mat-card-title>
+                <mat-card-content *ngIf="expandedGroups[type.key]">
+                    <div class="card-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <mat-card *ngFor="let saving of type.value" class="expense-card">
+                            <mat-card-title>
+                                <span class="card-title">{{ saving.name }}</span>
+                                <span class="chip">{{ saving.appName }}</span>
+                            </mat-card-title>
+                            <mat-card-content>
+                                <div class="card-row">
+                                    <span class="chip">{{ saving.maturityDate }}</span>
+                                </div>
+                                <div class="card-row">
+                                    <span class="amount">Current: ₹{{ saving.currentValue }}</span>
+                                    <span class="amount">Maturity: ₹{{ saving.maturityAmount }}</span>
+                                </div>
+                            </mat-card-content>
+                            <mat-card-actions>
+                                <button mat-button color="primary" (click)="editSaving(saving)">Edit</button>
+                                <button mat-button color="warn" (click)="deleteSaving(saving.savingId)">Delete</button>
+                            </mat-card-actions>
+                        </mat-card>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ import { DashboardHomeComponent } from './components/dashboard/dashboard-home/da
 import { FinanceComponent } from './components/dashboard/finance/finance.component';
 import { TodoListComponent } from './components/dashboard/todo-list/todo-list.component';
 import { ExpensesComponent } from './components/dashboard/finance/expenses/expenses.component';
+import { SavingsComponent } from './components/dashboard/finance/savings/savings.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -22,19 +23,21 @@ const routes: Routes = [
         path: 'finances',
         component: FinanceComponent,
         canActivate: [AuthGuard],
-      }, {
-        path: 'to-do',
-        component: TodoListComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'finance',
         children: [
           {
             path: 'expenses',
             component: ExpensesComponent
+          },
+          {
+            path: 'savings',
+            component: SavingsComponent
           }
         ]
+      },
+      {
+        path: 'to-do',
+        component: TodoListComponent,
+        canActivate: [AuthGuard],
       }
     ],
   },

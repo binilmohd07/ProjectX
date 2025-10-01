@@ -7,240 +7,28 @@
 
     <!-- Summary Tiles at the Top -->
     <div class="finance-summary-tiles">
-        <mat-card class="summary-tile income-tile" (click)="setTypeFilter(1)" style="cursor:pointer">
-            <mat-card-title>Income</mat-card-title>
-            <mat-card-content>
-                <span class="summary-amount">{{ getTotal(1) | currency:'INR':'symbol' }}</span>
-            </mat-card-content>
-        </mat-card>
         <mat-card class="summary-tile expense-tile" (click)="goToExpenses()" style="cursor:pointer">
             <mat-card-title>Expenses</mat-card-title>
             <mat-card-content>
-                <span class="summary-amount">{{ getTotal(2) | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount" style="font-size:0.95rem; white-space:nowrap; display:block;">Yearly: {{
+                    totalYearlyExpenses | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount" style="font-size:0.95rem; white-space:nowrap; display:block;">Monthly: {{
+                    totalMonthlyExpenses | currency:'INR':'symbol' }}</span>
             </mat-card-content>
         </mat-card>
-        <mat-card class="summary-tile savings-tile" (click)="setTypeFilter(3)" style="cursor:pointer">
+        <mat-card class="summary-tile savings-tile" (click)="goToSavings()" style="cursor:pointer">
             <mat-card-title>Savings</mat-card-title>
             <mat-card-content>
-                <span class="summary-amount">{{ getTotal(3) | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount" style="font-size:0.95rem; white-space:nowrap; display:block;">Total Amount:
+                    {{ totalSavingsAmount | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount" style="font-size:0.95rem; white-space:nowrap; display:block;">Current
+                    Amount: {{ totalSavingsCurrent | currency:'INR':'symbol' }}</span>
+                <span class="summary-amount" style="font-size:0.95rem; white-space:nowrap; display:block;">Maturity
+                    Amount: {{ totalSavingsMaturity | currency:'INR':'symbol' }}</span>
             </mat-card-content>
         </mat-card>
     </div>
 
-    <!-- Top Action Buttons -->
-    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; justify-content: flex-end;">
-        <button mat-raised-button color="primary" (click)="showAddFinanceForm()" *ngIf="!showAddForm">Add</button>
-        <button mat-button (click)="hideAddFinanceForm(); setTypeFilter(null)" *ngIf="showAddForm">Show All</button>
-        <mat-checkbox [checked]="selectedFinanceIds.size === filteredFinances.length && filteredFinances.length > 0"
-            (change)="toggleSelectAll($event.checked)" *ngIf="!showAddForm">
-            Select All
-        </mat-checkbox>
-        <button mat-raised-button color="warn" [disabled]="selectedFinanceIds.size === 0"
-            (click)="deleteSelectedFinances()" *ngIf="!showAddForm">
-            Delete Selected
-        </button>
-        <button mat-button (click)="setTypeFilter(null)" *ngIf="selectedType !== null && !showAddForm">
-            Show All
-        </button>
-    </div>
-
-    <!-- Add/Update Form Card (shown only when showAddForm is true) -->
-    <mat-card *ngIf="showAddForm">
-        <mat-card-title>
-            {{ editMode ? 'Update Finance' : 'Add Finance' }}
-        </mat-card-title>
-        <mat-card-content>
-            <form [formGroup]="financeForm" (ngSubmit)="onSubmit()" class="finance-form">
-                <div class="form-row">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Type</mat-label>
-                        <mat-select formControlName="type" required>
-                            <mat-option [value]="1">Income</mat-option>
-                            <mat-option [value]="2">Expenses</mat-option>
-                            <mat-option [value]="3">Savings</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Amount</mat-label>
-                        <input matInput type="number" formControlName="amount" required>
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Date</mat-label>
-                        <input matInput type="date" formControlName="date">
-                    </mat-form-field>
-                </div>
-
-                <!-- Income Fields -->
-                <div *ngIf="financeForm.value.type == 1" class="form-row">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Source</mat-label>
-                        <input matInput formControlName="source">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Note</mat-label>
-                        <input matInput formControlName="note">
-                    </mat-form-field>
-                </div>
-
-                <!-- Expenses Fields -->
-                <div *ngIf="financeForm.value.type == 2" class="form-row">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Category</mat-label>
-                        <input matInput formControlName="category">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Payment Method</mat-label>
-                        <input matInput formControlName="paymentMethod">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Due Date</mat-label>
-                        <input matInput type="date" formControlName="dueDate">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Note</mat-label>
-                        <input matInput formControlName="note">
-                    </mat-form-field>
-                </div>
-
-                <!-- Savings Fields -->
-                <div *ngIf="financeForm.value.type == 3" class="form-row">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Source</mat-label>
-                        <input matInput formControlName="source">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Goal</mat-label>
-                        <input matInput formControlName="goal">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Savings Type</mat-label>
-                        <mat-select formControlName="savingsType">
-                            <mat-option value="FD">FD</mat-option>
-                            <mat-option value="SIP">SIP</mat-option>
-                            <mat-option value="POST">POST</mat-option>
-                            <mat-option value="PPF">PPF</mat-option>
-                            <mat-option value="INSURANCE">INSURANCE</mat-option>
-                            <mat-option value="PF">PF</mat-option>
-                            <mat-option value="STOCKS">STOCKS</mat-option>
-                            <mat-option value="CRYPTO">CRYPTO</mat-option>
-                            <mat-option value="ACCOUNT BALANCE">ACCOUNT BALANCE</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <!-- SIP fields -->
-                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'SIP'">
-                        <mat-label>Due Date</mat-label>
-                        <input matInput type="date" formControlName="dueDate">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'SIP'">
-                        <mat-label>Current Value</mat-label>
-                        <input matInput type="number" formControlName="currentValue">
-                    </mat-form-field>
-                    <!-- FD/POST fields -->
-                    <mat-form-field appearance="fill"
-                        *ngIf="financeForm.value.savingsType === 'FD' || financeForm.value.savingsType === 'POST'">
-                        <mat-label>Maturity Amount</mat-label>
-                        <input matInput type="number" formControlName="maturityAmount">
-                    </mat-form-field>
-                    <!-- INSURANCE fields -->
-                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'INSURANCE'">
-                        <mat-label>Number of Installments</mat-label>
-                        <input matInput type="number" formControlName="numInstallments">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'INSURANCE'">
-                        <mat-label>Last Due Date</mat-label>
-                        <input matInput type="date" formControlName="lastDueDate">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill" *ngIf="financeForm.value.savingsType === 'INSURANCE'">
-                        <mat-label>Maturity Amount</mat-label>
-                        <input matInput type="number" formControlName="maturityAmount">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Maturity Date</mat-label>
-                        <input matInput type="date" formControlName="maturityDate">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill">
-                        <mat-label>Note</mat-label>
-                        <input matInput formControlName="note">
-                    </mat-form-field>
-                    <mat-form-field appearance="fill"
-                        *ngIf="financeForm.value.savingsType === 'STOCKS' || financeForm.value.savingsType === 'CRYPTO' || financeForm.value.savingsType === 'PPF'">
-                        <mat-label>Current Value</mat-label>
-                        <input matInput type="number" formControlName="currentValue">
-                    </mat-form-field>
-                </div>
-
-                <div class="form-actions">
-                    <button mat-raised-button color="primary" type="submit">{{ editMode ? 'Update' : 'Add' }}</button>
-                    <button mat-button type="button" (click)="resetForm(); hideAddFinanceForm()">Clear</button>
-                    <button mat-stroked-button color="accent" type="button" (click)="addSample()">Add Sample
-                        Data</button>
-                    <button mat-button type="button" color="warn" (click)="hideAddFinanceForm()">Close</button>
-                </div>
-            </form>
-        </mat-card-content>
-    </mat-card>
-
-    <!-- Finances List Grid (hidden when showAddForm is true) -->
-    <div *ngIf="finances.length > 0 && !showAddForm" class="finance-list-grid">
-        <mat-card *ngFor="let f of filteredFinances" [ngClass]="{
-                'finance-list-item-card': true,
-                'income-card': f.type === 1,
-                'expense-card': f.type === 2,
-                'savings-card': f.type === 3
-            }">
-            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <mat-checkbox [checked]="selectedFinanceIds.has(f.id!)" (change)="toggleSelection(f.id!)"
-                    aria-label="Select"></mat-checkbox>
-                <button mat-icon-button style="background: transparent; color: #FFD600;" (click)="editFinance(f)"
-                    aria-label="Edit">
-                    <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button style="background: transparent; color: #F44336;" (click)="deleteFinance(f.id)"
-                    aria-label="Delete">
-                    <mat-icon>delete</mat-icon>
-                </button>
-            </div>
-            <mat-card-content>
-                <ng-container [ngSwitch]="f.type">
-                    <div *ngSwitchCase="1">
-                        <mat-card-title>Income</mat-card-title>
-                        <strong>{{ f.source }}</strong>
-                        <div class="summary-amount">{{ f.amount | currency:'INR':'symbol' }}</div>
-                        <small>
-                            <span *ngIf="f.date">Date: {{ f.date }}<br></span>
-                            <span *ngIf="f.note">Note: {{ f.note }}</span>
-                        </small>
-                    </div>
-                    <div *ngSwitchCase="2">
-                        <mat-card-title>Expense</mat-card-title>
-                        <strong>{{ f.category }}</strong>
-                        <div class="summary-amount">{{ f.amount | currency:'INR':'symbol' }}</div>
-                        <small>
-                            <span *ngIf="f.date">Date: {{ f.date }}<br></span>
-                            <span *ngIf="f.dueDate">Due Date: {{ f.dueDate }}<br></span>
-                            <span *ngIf="f.paymentMethod">Payment Method: {{ f.paymentMethod }}<br></span>
-                            <span *ngIf="f.note">Note: {{ f.note }}</span>
-                        </small>
-                    </div>
-                    <div *ngSwitchCase="3">
-                        <mat-card-title>Savings</mat-card-title>
-                        <strong>{{ f.goal }}</strong>
-                        <div class="summary-amount">{{ f.amount | currency:'INR':'symbol' }}</div>
-                        <small>
-                            <span *ngIf="f.savingsType">Savings Type: {{ f.savingsType }}<br></span>
-                            <span *ngIf="f.date">Date: {{ f.date }}<br></span>
-                            <span *ngIf="f.maturityDate">Maturity Date: {{ f.maturityDate }}<br></span>
-                            <span *ngIf="f.source">Source: {{ f.source }}<br></span>
-                            <span *ngIf="f.note">Note: {{ f.note }}</span>
-                        </small>
-                    </div>
-                </ng-container>
-            </mat-card-content>
-        </mat-card>
-    </div>
-    <div *ngIf="filteredFinances.length === 0 && !showAddForm">
-        <p>No records found.</p>
-    </div>
 </div>
 
 <router-outlet></router-outlet>

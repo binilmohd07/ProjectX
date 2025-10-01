@@ -24,6 +24,7 @@ import { FinanceComponent } from './components/dashboard/finance/finance.compone
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { TodoListComponent } from './components/dashboard/todo-list/todo-list.component';
 import { ExpensesComponent } from './components/dashboard/finance/expenses/expenses.component';
+import { SavingsComponent } from './components/dashboard/finance/savings/savings.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { ExpensesComponent } from './components/dashboard/finance/expenses/expen
     FinanceComponent,
     DashboardHomeComponent,
     TodoListComponent,
-    ExpensesComponent
+    ExpensesComponent,
+    SavingsComponent
   ],
   imports: [
     BrowserModule,
