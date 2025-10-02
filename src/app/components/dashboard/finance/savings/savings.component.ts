@@ -10,6 +10,15 @@ import { FinanceSyncService } from '../../../../services/finances/finance-sync.s
   styleUrl: './savings.component.scss'
 })
 export class SavingsComponent implements OnInit {
+  getGroupTotalAmount(group: any[]): number {
+    return group.reduce((sum, s) => sum + (s.amount || 0), 0);
+  }
+  getGroupTotalCurrentValue(group: any[]): number {
+    return group.reduce((sum, s) => sum + (s.currentValue || 0), 0);
+  }
+  getGroupTotalMaturityAmount(group: any[]): number {
+    return group.reduce((sum, s) => sum + (s.maturityAmount || 0), 0);
+  }
   showAddForm = false;
   savingsForm: FormGroup;
   submitted = false;
