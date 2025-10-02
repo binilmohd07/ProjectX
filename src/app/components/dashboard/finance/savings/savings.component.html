@@ -88,7 +88,7 @@
         </div>
 
         <!-- Table/Card View Toggle -->
-        <div class="expenses-header-actions" style="display: flex; gap: 8px; align-items: center;">
+        <div class="expenses-header-actions">
             <button mat-raised-button color="primary" (click)="onCreateNew()"
                 *ngIf="editingSavingId === null && !showAddForm">Create New</button>
             <button mat-button (click)="isTableView = !isTableView" *ngIf="!showAddForm && editingSavingId === null">{{
@@ -100,8 +100,15 @@
     <div class="expenses-table-wrapper" *ngIf="isTableView && !showAddForm && editingSavingId === null">
         <div *ngFor="let type of groupedSavings | keyvalue">
             <mat-card class="group-card">
-                <mat-card-title>
-                    <span class="chip">{{ type.key }}</span>
+                <mat-card-title class="group-title-row">
+                    <div class="group-title-info">
+                        <span class="chip">{{ type.key }}</span>
+                        <span class="group-totals">
+                            Total: ₹{{ getGroupTotalAmount(type.value) }} | Current: ₹{{
+                            getGroupTotalCurrentValue(type.value) }} | Maturity: ₹{{
+                            getGroupTotalMaturityAmount(type.value) }}
+                        </span>
+                    </div>
                     <button mat-icon-button (click)="toggleGroup(type.key)">
                         <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
                             }}</mat-icon>
@@ -117,9 +124,20 @@
                             <th mat-header-cell *matHeaderCellDef> App Name </th>
                             <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.appName }}</span> </td>
                         </ng-container>
+                        <ng-container matColumnDef="savingsType">
+                            <th mat-header-cell *matHeaderCellDef> Type </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.savingsType }}</span>
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="dueDate">
+                            <th mat-header-cell *matHeaderCellDef> Due Date </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.dueDate | date:'dd MMM
+                                    yyyy' }}</span> </td>
+                        </ng-container>
                         <ng-container matColumnDef="maturityDate">
                             <th mat-header-cell *matHeaderCellDef> Maturity Date </th>
-                            <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.maturityDate }}</span>
+                            <td mat-cell *matCellDef="let saving"> <span class="chip">{{ saving.maturityDate | date:'dd
+                                    MMM yyyy' }}</span>
                             </td>
                         </ng-container>
                         <ng-container matColumnDef="currentValue">
@@ -130,7 +148,11 @@
                         <ng-container matColumnDef="maturityAmount">
                             <th mat-header-cell *matHeaderCellDef> Maturity Amount </th>
                             <td mat-cell *matCellDef="let saving"> <span class="amount">₹{{ saving.maturityAmount
-                                    }}</span>
+                                    }}</span> </td>
+                        </ng-container>
+                        <ng-container matColumnDef="amount">
+                            <th mat-header-cell *matHeaderCellDef> Amount </th>
+                            <td mat-cell *matCellDef="let saving"> <span class="amount">₹{{ saving.amount }}</span>
                             </td>
                         </ng-container>
                         <ng-container matColumnDef="actions">
@@ -143,10 +165,10 @@
                             </td>
                         </ng-container>
                         <tr mat-header-row
-                            *matHeaderRowDef="['name', 'appName', 'maturityDate', 'currentValue', 'maturityAmount', 'actions']">
+                            *matHeaderRowDef="['name', 'appName', 'savingsType', 'dueDate', 'maturityDate', 'currentValue', 'maturityAmount', 'amount', 'actions']">
                         </tr>
                         <tr mat-row
-                            *matRowDef="let row; columns: ['name', 'appName', 'maturityDate', 'currentValue', 'maturityAmount', 'actions'];">
+                            *matRowDef="let row; columns: ['name', 'appName', 'savingsType', 'dueDate', 'maturityDate', 'currentValue', 'maturityAmount', 'amount', 'actions'];">
                         </tr>
                     </table>
                 </mat-card-content>
@@ -154,32 +176,40 @@
         </div>
     </div>
 
-    <!-- Grouped Card View -->
     <div class="expenses-card-list" *ngIf="!isTableView && !showAddForm && editingSavingId === null">
-        <div *ngFor="let type of groupedSavings | keyvalue; let last = last"
-            style="width: 100vw; max-width: 100vw; box-sizing: border-box;">
-            <mat-card class="group-card" style="width: 100%; box-sizing: border-box;">
-                <mat-card-title>
-                    <span class="chip">{{ type.key }}</span>
+        <div *ngFor="let type of groupedSavings | keyvalue; let last = last" class="group-card-list-row">
+            <mat-card class="group-card">
+                <mat-card-title class="group-title-row">
+                    <div class="group-title-info">
+                        <span class="chip">{{ type.key }}</span>
+                        <span class="group-totals">
+                            Total: ₹{{ getGroupTotalAmount(type.value) }} | Current: ₹{{
+                            getGroupTotalCurrentValue(type.value) }} | Maturity: ₹{{
+                            getGroupTotalMaturityAmount(type.value) }}
+                        </span>
+                    </div>
                     <button mat-icon-button (click)="toggleGroup(type.key)">
                         <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
                             }}</mat-icon>
                     </button>
                 </mat-card-title>
                 <mat-card-content *ngIf="expandedGroups[type.key]">
-                    <div class="card-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div class="card-list">
                         <mat-card *ngFor="let saving of type.value" class="expense-card">
                             <mat-card-title>
                                 <span class="card-title">{{ saving.name }}</span>
                                 <span class="chip">{{ saving.appName }}</span>
+                                <span class="chip">{{ saving.savingsType }}</span>
                             </mat-card-title>
                             <mat-card-content>
                                 <div class="card-row">
-                                    <span class="chip">{{ saving.maturityDate }}</span>
+                                    <span class="chip">Due: {{ saving.dueDate | date:'dd MMM yyyy' }}</span>
+                                    <span class="chip">Maturity: {{ saving.maturityDate | date:'dd MMM yyyy' }}</span>
                                 </div>
                                 <div class="card-row">
                                     <span class="amount">Current: ₹{{ saving.currentValue }}</span>
                                     <span class="amount">Maturity: ₹{{ saving.maturityAmount }}</span>
+                                    <span class="amount">Amount: ₹{{ saving.amount }}</span>
                                 </div>
                             </mat-card-content>
                             <mat-card-actions>
