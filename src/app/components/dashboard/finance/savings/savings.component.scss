@@ -1,7 +1,25 @@
+// Flex row for group name and toggle button
+// Flex row for group name and toggle button
+.group-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.group-name-spacer {
+    flex: 1 1 auto;
+}
+
+.group-name-label {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
 // Inline group totals for card view
 .group-totals-inline {
     margin: 0 0 0 18px;
-    padding: 6px 12px;
+    padding: 0px 12px;
 
     // Beautified group totals bar
     .group-totals-bar {
@@ -43,7 +61,7 @@
 
     .group-total-value {
         color: #2d3a4a;
-        background: #fff;
+        background: #ddd;
         border-radius: 6px;
         padding: 2px 10px;
         font-weight: 600;
@@ -112,6 +130,11 @@
     box-shadow: 0 2px 8px rgba(60, 80, 120, 0.10);
     border: 1px solid #e3e8ee;
     transition: box-shadow 0.2s;
+
+    .chip {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
 }
 
 .expense-card:hover {
@@ -172,7 +195,7 @@
     }
 
     @media (max-width: 600px) {
-        font-size: 0.78rem;
+        font-size: 10px;
         flex-direction: column;
         align-items: stretch;
 
@@ -196,6 +219,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
+    width: 100%;
 }
 
 .group-totals {
@@ -292,8 +316,8 @@
     background: #e0e7ef;
     color: #2d3a4a;
     border-radius: 16px;
-    padding: 2px 12px;
-    font-size: 13px;
+    padding: 2px 8px;
+    font-size: 11px;
     margin-right: 4px;
     max-width: 100%;
     word-break: keep-all;
@@ -387,6 +411,10 @@
         flex-direction: column;
         gap: 6px;
     }
+    .expense-card .amount {
+        font-size: 12px;
+        margin-right: 6px;
+    }
 
     .expenses-page-layout {
         padding: 0 4px;
@@ -397,5 +425,10 @@
         padding: 2px 8px;
         margin-bottom: 0;
         max-width: 90vw;
+    }
+
+    .expense-card .chip {
+        font-size: 10px;
+        padding: 2px 6px;
     }
 }
