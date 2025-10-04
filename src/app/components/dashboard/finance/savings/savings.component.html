@@ -102,12 +102,15 @@
             <mat-card class="group-card">
                 <mat-card-title class="group-title-row">
                     <div class="group-title-info">
-                        <span class="chip">{{ type.key }}</span>
-                        <span class="group-totals">
-                            Total: ₹{{ getGroupTotalAmount(type.value) }} | Current: ₹{{
-                            getGroupTotalCurrentValue(type.value) }} | Maturity: ₹{{
-                            getGroupTotalMaturityAmount(type.value) }}
-                        </span>
+                        <span class="group-name-label">{{ type.key }}</span>
+                        <div class="group-totals-bar group-totals-inline">
+                            <span class="group-total-label">Total</span>
+                            <span class="group-total-value">₹{{ getGroupTotalAmount(type.value) }}</span>
+                            <span class="group-total-label">Current</span>
+                            <span class="group-total-value">₹{{ getGroupTotalCurrentValue(type.value) }}</span>
+                            <span class="group-total-label">Maturity</span>
+                            <span class="group-total-value">₹{{ getGroupTotalMaturityAmount(type.value) }}</span>
+                        </div>
                     </div>
                     <button mat-icon-button (click)="toggleGroup(type.key)">
                         <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
@@ -187,12 +190,15 @@
             <mat-card class="group-card">
                 <mat-card-title class="group-title-row">
                     <div class="group-title-info">
-                        <span class="chip">{{ type.key }}</span>
-                        <span class="group-totals">
-                            Total: ₹{{ getGroupTotalAmount(type.value) }} | Current: ₹{{
-                            getGroupTotalCurrentValue(type.value) }} | Maturity: ₹{{
-                            getGroupTotalMaturityAmount(type.value) }}
-                        </span>
+                        <span class="group-name-label">{{ type.key }}</span>
+                        <div class="group-totals-bar group-totals-inline">
+                            <span class="group-total-label">Total</span>
+                            <span class="group-total-value">₹{{ getGroupTotalAmount(type.value) }}</span>
+                            <span class="group-total-label">Current</span>
+                            <span class="group-total-value">₹{{ getGroupTotalCurrentValue(type.value) }}</span>
+                            <span class="group-total-label">Maturity</span>
+                            <span class="group-total-value">₹{{ getGroupTotalMaturityAmount(type.value) }}</span>
+                        </div>
                     </div>
                     <button mat-icon-button (click)="toggleGroup(type.key)">
                         <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
