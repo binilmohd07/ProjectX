@@ -102,7 +102,14 @@
             <mat-card class="group-card">
                 <mat-card-title class="group-title-row">
                     <div class="group-title-info">
-                        <span class="group-name-label">{{ type.key }}</span>
+                        <div class="group-name-row">
+                            <span class="group-name-label">{{ type.key }}</span>
+                            <span class="group-name-spacer"></span>
+                            <button mat-icon-button (click)="toggleGroup(type.key)">
+                                <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
+                                    }}</mat-icon>
+                            </button>
+                        </div>
                         <div class="group-totals-bar group-totals-inline">
                             <span class="group-total-label">Total</span>
                             <span class="group-total-value">₹{{ getGroupTotalAmount(type.value) }}</span>
@@ -112,10 +119,7 @@
                             <span class="group-total-value">₹{{ getGroupTotalMaturityAmount(type.value) }}</span>
                         </div>
                     </div>
-                    <button mat-icon-button (click)="toggleGroup(type.key)">
-                        <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
-                            }}</mat-icon>
-                    </button>
+
                 </mat-card-title>
                 <mat-card-content *ngIf="expandedGroups[type.key]">
                     <div class="responsive-table-scroll">
@@ -190,7 +194,14 @@
             <mat-card class="group-card">
                 <mat-card-title class="group-title-row">
                     <div class="group-title-info">
-                        <span class="group-name-label">{{ type.key }}</span>
+                        <div class="group-name-row">
+                            <span class="group-name-label">{{ type.key }}</span>
+                            <span class="group-name-spacer"></span>
+                            <button mat-icon-button (click)="toggleGroup(type.key)">
+                                <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
+                                    }}</mat-icon>
+                            </button>
+                        </div>
                         <div class="group-totals-bar group-totals-inline">
                             <span class="group-total-label">Total</span>
                             <span class="group-total-value">₹{{ getGroupTotalAmount(type.value) }}</span>
@@ -200,21 +211,23 @@
                             <span class="group-total-value">₹{{ getGroupTotalMaturityAmount(type.value) }}</span>
                         </div>
                     </div>
-                    <button mat-icon-button (click)="toggleGroup(type.key)">
-                        <mat-icon>{{ expandedGroups[type.key] ? 'keyboard_arrow_up' : 'keyboard_arrow_down'
-                            }}</mat-icon>
-                    </button>
+
                 </mat-card-title>
                 <mat-card-content *ngIf="expandedGroups[type.key]">
                     <div class="card-list">
                         <mat-card *ngFor="let saving of type.value" class="expense-card">
                             <mat-card-title>
-                                <span class="card-title">{{ saving.name }}</span>
-                                <span class="chip">{{ saving.appName }}</span>
-                                <span class="chip">{{ saving.savingsType }}</span>
+                                <div>
+                                    <span class="card-title">{{ saving.name }}</span>
+                                </div>
+
                             </mat-card-title>
                             <mat-card-content>
-                                <div class="card-row">
+                                <div style="padding-top:10px;">
+                                    <span class="chip">{{ saving.appName }}</span>
+                                    <span class="chip">{{ saving.savingsType }}</span>
+                                </div>
+                                <div class="card-row" style="padding-top:10px;">
                                     <span class="chip">Due: {{ saving.dueDate | date:'dd MMM yyyy' }}</span>
                                     <span class="chip">Maturity: {{ saving.maturityDate | date:'dd MMM yyyy' }}</span>
                                 </div>
