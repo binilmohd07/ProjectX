@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SavingsService } from '../../../../services/finances/savings.service';
 import { AuthService } from '../../../../services/auth.service';
@@ -10,6 +10,9 @@ import { FinanceSyncService } from '../../../../services/finances/finance-sync.s
   styleUrl: './savings.component.scss'
 })
 export class SavingsComponent implements OnInit {
+  @ViewChild('savingsFormRef') savingsFormRef!: ElementRef;
+  @ViewChildren('groupCardRef', { read: ElementRef }) groupCardRefs!: QueryList<ElementRef>;
+  // ...existing code...
   getGroupTotalAmount(group: any[]): number {
     return group.reduce((sum, s) => sum + (s.amount || 0), 0);
   }
@@ -40,14 +43,19 @@ export class SavingsComponent implements OnInit {
       savingsType: saving.savingsType,
       maturityDate: saving.maturityDate,
       dueDate: saving.dueDate || '',
-      appName: saving.appName || '', // <-- Add this line
+      appName: saving.appName || '',
       currentValue: saving.currentValue,
       maturityAmount: saving.maturityAmount,
-      amount: saving.amount
+      amount: saving.amount,
+      lastUpdated: new Date().toISOString()
     });
     this.successMessage = '';
     this.showAddForm = true;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      if (this.savingsFormRef && this.savingsFormRef.nativeElement) {
+        this.savingsFormRef.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
   }
 
   deleteSaving(savingId: string): void {
@@ -74,10 +82,11 @@ export class SavingsComponent implements OnInit {
       savingsType: ['', Validators.required],
       maturityDate: ['', Validators.required],
       dueDate: ['', Validators.required],
-      appName: ['', Validators.required], // <-- Add this line
+      appName: ['', Validators.required],
       currentValue: [0, [Validators.required, Validators.min(0)]],
       maturityAmount: [0, [Validators.required, Validators.min(0)]],
-      amount: [0, [Validators.required, Validators.min(0)]]
+      amount: [0, [Validators.required, Validators.min(0)]],
+      lastUpdated: ['']
     });
     this.user = this.authService.getUser();
   }
@@ -111,6 +120,8 @@ export class SavingsComponent implements OnInit {
   onSubmit(): void {
     this.submitted = true;
     if (this.savingsForm.valid && this.user?.uid) {
+      // Always update lastUpdated to now before submit
+      this.savingsForm.patchValue({ lastUpdated: new Date().toISOString() });
       let formValue = {
         ...this.savingsForm.value,
         userId: this.user.uid
@@ -129,6 +140,18 @@ export class SavingsComponent implements OnInit {
             this.showAddForm = false;
             this.loadSavings();
             this.financeSyncService.notifySavingsChanged();
+            // Scroll to the open group card after update
+            setTimeout(() => {
+              if (this.groupCardRefs && this.groupCardRefs.length > 0) {
+                const openGroup = Object.keys(this.expandedGroups).find(key => this.expandedGroups[key]);
+                if (openGroup) {
+                  const ref = this.groupCardRefs.find((el: ElementRef) => el.nativeElement.dataset.groupKey === openGroup);
+                  if (ref && ref.nativeElement) {
+                    ref.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }
+              }
+            }, 300);
           })
           .catch(() => {
             this.successMessage = 'Error updating saving.';
@@ -163,6 +186,10 @@ export class SavingsComponent implements OnInit {
     this.successMessage = '';
     this.submitted = false;
     this.showAddForm = true;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      if (this.savingsFormRef && this.savingsFormRef.nativeElement) {
+        this.savingsFormRef.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
   }
 }

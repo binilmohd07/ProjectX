@@ -16,6 +16,7 @@ export interface Saving {
   currentValue: number;
   maturityAmount: number;
   amount: number;
+  lastUpdated: string; // ISO date string for last updated date
 }
 
 @Injectable({
