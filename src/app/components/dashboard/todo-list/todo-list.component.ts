@@ -38,6 +38,7 @@ export class TodoListComponent implements OnInit {
   ) {
     this.todoForm = this.fb.group({
       task: ['', Validators.required],
+      description: [''],
       dueDate: ['', dueDateValidator()]
     });
   }
@@ -52,7 +53,8 @@ export class TodoListComponent implements OnInit {
 
   fetchTodos() {
     this.todoService.getTodos(this.userId).subscribe(todos => {
-      this.tasks = todos;
+      // Sort: incomplete first, completed last
+      this.tasks = todos.sort((a, b) => Number(a.completed) - Number(b.completed));
       this.loading = false;
     });
   }
@@ -62,12 +64,14 @@ export class TodoListComponent implements OnInit {
       const newTodo: TodoItem = {
         userId: this.userId, // Uses Google logged-in user ID
         title: this.todoForm.value.task,
+        description: this.todoForm.value.description,
         completed: false,
         dueDate: this.todoForm.value.dueDate
       };
       this.todoService.addTodo(newTodo).then(() => {
         this.todoForm.reset();
         this.fetchTodos();
+        // Sorting will be handled in fetchTodos
       });
     }
   }
@@ -77,6 +81,7 @@ export class TodoListComponent implements OnInit {
     if (todo.id) {
       this.todoService.deleteTodo(todo.id).then(() => {
         this.fetchTodos();
+        // Sorting will be handled in fetchTodos
       });
     }
   }
@@ -86,6 +91,7 @@ export class TodoListComponent implements OnInit {
     if (todo.id) {
       this.todoService.updateTodo(todo.id, { ...todo, completed: !todo.completed }).then(() => {
         this.fetchTodos();
+        // Sorting will be handled in fetchTodos
       });
     }
   }

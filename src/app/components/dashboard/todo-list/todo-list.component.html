@@ -16,6 +16,10 @@
                         </mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Description (optional)</mat-label>
+                        <textarea matInput formControlName="description" rows="2"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="form-field">
                         <mat-label>Due Date (optional)</mat-label>
                         <input matInput type="date" formControlName="dueDate">
                         <mat-error *ngIf="todoForm.get('dueDate')?.hasError('invalidDate')">
@@ -43,6 +47,7 @@
                 <mat-checkbox [checked]="task.completed" (change)="toggleTask(i)"></mat-checkbox>
                 <div class="todo-details">
                     <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
+                    <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
                     <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate }}</span>
                 </div>
                 <span class="spacer"></span>
