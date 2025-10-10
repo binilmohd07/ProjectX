@@ -74,6 +74,9 @@ export class ExpensesComponent implements OnInit {
       console.error('Expense ID is undefined or invalid');
       return;
     }
+      if (!confirm('Are you sure you want to delete this expense?')) {
+        return;
+      }
     console.log(`Attempting to delete expense with ID: ${expenseId}`);
     this.expensesService.deleteExpense(expenseId).then(() => {
       console.log(`Expense with ID ${expenseId} deleted successfully.`);

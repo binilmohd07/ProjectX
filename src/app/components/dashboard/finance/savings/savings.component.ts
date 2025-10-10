@@ -60,6 +60,9 @@ export class SavingsComponent implements OnInit {
 
   deleteSaving(savingId: string): void {
     if (savingId) {
+      if (!confirm('Are you sure you want to delete this saving?')) {
+        return;
+      }
       this.savingsService.deleteSaving(savingId).then(() => {
         this.loadSavings();
         this.successMessage = 'Saving deleted.';

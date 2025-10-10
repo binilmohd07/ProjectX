@@ -27,6 +27,9 @@ function dueDateValidator(): ValidatorFn {
   styleUrls: ['./todo-list.component.scss']
 })
 export class TodoListComponent implements OnInit {
+  showAddTaskForm = false;
+  editingIndex: number | null = null;
+  editForm: FormGroup;
   todoForm: FormGroup;
   userId: string = '';
   loading = true;
@@ -41,6 +44,41 @@ export class TodoListComponent implements OnInit {
       description: [''],
       dueDate: ['', dueDateValidator()]
     });
+
+    this.editForm = this.fb.group({
+      task: ['', Validators.required],
+      description: [''],
+      dueDate: ['']
+    });
+  }
+  startEditTask(index: number) {
+    this.editingIndex = index;
+    const task = this.tasks[index];
+    this.editForm.setValue({
+      task: task.title,
+      description: task.description || '',
+      dueDate: task.dueDate || ''
+    });
+  }
+
+  saveEditTask(index: number) {
+    const task = this.tasks[index];
+    if (task.id && this.editForm.valid) {
+      const updated: TodoItem = {
+        ...task,
+        title: this.editForm.value.task,
+        description: this.editForm.value.description,
+        dueDate: this.editForm.value.dueDate
+      };
+      this.todoService.updateTodo(task.id, updated).then(() => {
+        this.editingIndex = null;
+        this.fetchTodos();
+      });
+    }
+  }
+
+  cancelEditTask() {
+    this.editingIndex = null;
   }
 
   tasks: TodoItem[] = [];
@@ -56,7 +94,13 @@ export class TodoListComponent implements OnInit {
       // Sort: incomplete first, completed last
       this.tasks = todos.sort((a, b) => Number(a.completed) - Number(b.completed));
       this.loading = false;
+      // Show add task form if no tasks exist
+      this.showAddTaskForm = this.tasks.length === 0;
     });
+  }
+
+  toggleAddTaskForm() {
+    this.showAddTaskForm = !this.showAddTaskForm;
   }
 
   addTask() {
@@ -77,6 +121,9 @@ export class TodoListComponent implements OnInit {
   }
 
   removeTask(index: number) {
+    if (!confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
     const todo = this.tasks[index];
     if (todo.id) {
       this.todoService.deleteTodo(todo.id).then(() => {

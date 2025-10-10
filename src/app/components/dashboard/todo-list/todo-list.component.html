@@ -4,31 +4,46 @@
     </mat-toolbar>
 </div>
 <div class="todo-list-container">
-    <form [formGroup]="todoForm" (ngSubmit)="addTask()" class="todo-form">
+    <div class="add-task-toggle-row" *ngIf="tasks.length > 0 && !showAddTaskForm">
+        <button mat-raised-button color="primary" (click)="toggleAddTaskForm()">
+            Add Task
+        </button>
+    </div>
+    <form *ngIf="showAddTaskForm || tasks.length === 0" [formGroup]="todoForm" (ngSubmit)="addTask()" class="todo-form">
         <mat-card class="todo-form-card">
             <mat-card-content>
-                <div class="form-fields">
-                    <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>New Task</mat-label>
-                        <input matInput formControlName="task" required>
-                        <mat-error *ngIf="todoForm.get('task')?.hasError('required')">
-                            Task is required.
-                        </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>Description (optional)</mat-label>
-                        <textarea matInput formControlName="description" rows="2"></textarea>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="form-field">
-                        <mat-label>Due Date (optional)</mat-label>
-                        <input matInput type="date" formControlName="dueDate">
-                        <mat-error *ngIf="todoForm.get('dueDate')?.hasError('invalidDate')">
-                            Please enter a valid date.
-                        </mat-error>
-                        <mat-error *ngIf="todoForm.get('dueDate')?.hasError('pastDate')">
-                            Date must be today or later.
-                        </mat-error>
-                    </mat-form-field>
+                <div class="form-fields" style="position: relative; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: flex-end; width: 100%;">
+                        <button *ngIf="tasks.length > 0" mat-icon-button type="button" class="close-add-task-btn"
+                            (click)="toggleAddTaskForm()" aria-label="Close Add Task">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                    <div class="add-form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>New Task</mat-label>
+                            <input matInput formControlName="task" required>
+                            <mat-error *ngIf="todoForm.get('task')?.hasError('required')">
+                                Task is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Due Date (optional)</mat-label>
+                            <input matInput type="date" formControlName="dueDate">
+                            <mat-error *ngIf="todoForm.get('dueDate')?.hasError('invalidDate')">
+                                Please enter a valid date.
+                            </mat-error>
+                            <mat-error *ngIf="todoForm.get('dueDate')?.hasError('pastDate')">
+                                Date must be today or later.
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="add-form-row">
+                        <mat-form-field appearance="outline" class="form-field full-width">
+                            <mat-label>Description (optional)</mat-label>
+                            <textarea matInput formControlName="description" rows="2"></textarea>
+                        </mat-form-field>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button mat-raised-button color="primary" type="submit" [disabled]="
@@ -44,17 +59,52 @@
     <div class="todo-list-cards">
         <mat-card *ngFor="let task of tasks; let i = index" class="todo-card">
             <div class="todo-card-content">
-                <mat-checkbox [checked]="task.completed" (change)="toggleTask(i)"></mat-checkbox>
-                <div class="todo-details">
-                    <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
-                    <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
-                    <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate }}</span>
-                </div>
-                <span class="spacer"></span>
-                <button mat-icon-button color="warn" (click)="removeTask(i)">
-                    <mat-icon>delete</mat-icon>
-                </button>
+                <ng-container *ngIf="editingIndex !== i; else editFormBlock">
+                    <mat-checkbox [checked]="task.completed" (change)="toggleTask(i)"></mat-checkbox>
+                    <div class="todo-details">
+                        <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
+                        <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
+                        <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate | date:'dd-MMM-yyyy' }}</span>
+                    </div>
+                    <span class="spacer"></span>
+                    <button mat-icon-button color="accent" (click)="startEditTask(i)">
+                        <mat-icon class="edit-icon">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="removeTask(i)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </ng-container>
+                <ng-template #editFormBlock>
+                    <form [formGroup]="editForm" class="edit-form" (ngSubmit)="saveEditTask(i)">
+                        <div class="edit-form-fields">
+                            <div class="edit-form-row">
+                                <mat-form-field appearance="outline" class="form-field">
+                                    <mat-label>Task</mat-label>
+                                    <input matInput formControlName="task" required>
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" class="form-field">
+                                    <mat-label>Due Date</mat-label>
+                                    <input matInput type="date" formControlName="dueDate">
+                                </mat-form-field>
+                            </div>
+                            <div class="edit-form-row">
+                                <mat-form-field appearance="outline" class="form-field full-width">
+                                    <mat-label>Description</mat-label>
+                                    <textarea matInput formControlName="description" rows="2"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button mat-raised-button color="primary" type="submit"
+                                [disabled]="editForm.invalid">Save</button>
+                            <button mat-button type="button" (click)="cancelEditTask()">Cancel</button>
+                        </div>
+                    </form>
+                </ng-template>
             </div>
         </mat-card>
+    </div>
+    <div class="todo-bottom-padding">
+
     </div>
 </div>
