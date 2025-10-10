@@ -8,6 +8,7 @@ export interface TodoItem {
   id?: string;
   userId: string;
   title: string;
+  description?: string; // <-- Optional description
   completed: boolean;
   createdAt?: string;
   dueDate?: string; // <-- Optional due date
