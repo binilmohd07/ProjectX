@@ -12,6 +12,8 @@ export interface TodoItem {
   completed: boolean;
   createdAt?: string;
   dueDate?: string; // <-- Optional due date
+  frequency?: 'one time' | 'daily' | 'weekly' | 'monthly';
+  addToCalendar?: boolean;
 }
 
 @Injectable({

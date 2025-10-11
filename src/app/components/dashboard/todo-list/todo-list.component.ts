@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+// ...existing imports...
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
 import { TodoService, TodoItem } from '../../../services/todo/todo.service';
 import { AuthService } from '../../../services/auth.service';
@@ -27,12 +28,22 @@ function dueDateValidator(): ValidatorFn {
   styleUrls: ['./todo-list.component.scss']
 })
 export class TodoListComponent implements OnInit {
+  calendarMessage: string | null = null;
   showAddTaskForm = false;
   editingIndex: number | null = null;
   editForm: FormGroup;
   todoForm: FormGroup;
   userId: string = '';
   loading = true;
+
+  @ViewChild('calendarIframe') calendarIframe!: ElementRef<HTMLIFrameElement>;
+
+  refreshCalendarIframe() {
+    if (this.calendarIframe && this.calendarIframe.nativeElement) {
+      const src = this.calendarIframe.nativeElement.src;
+      this.calendarIframe.nativeElement.src = src;
+    }
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -42,13 +53,17 @@ export class TodoListComponent implements OnInit {
     this.todoForm = this.fb.group({
       task: ['', Validators.required],
       description: [''],
-      dueDate: ['', dueDateValidator()]
+      dueDate: ['', dueDateValidator()],
+      frequency: ['one time', Validators.required],
+      addToCalendar: [false]
     });
 
     this.editForm = this.fb.group({
       task: ['', Validators.required],
       description: [''],
-      dueDate: ['']
+      dueDate: [''],
+      frequency: ['one time', Validators.required],
+      addToCalendar: [false]
     });
   }
   startEditTask(index: number) {
@@ -57,20 +72,27 @@ export class TodoListComponent implements OnInit {
     this.editForm.setValue({
       task: task.title,
       description: task.description || '',
-      dueDate: task.dueDate || ''
+      dueDate: task.dueDate || '',
+      frequency: task.frequency || 'one time',
+      addToCalendar: !!task.addToCalendar
     });
   }
 
-  saveEditTask(index: number) {
+  async saveEditTask(index: number) {
     const task = this.tasks[index];
     if (task.id && this.editForm.valid) {
       const updated: TodoItem = {
         ...task,
         title: this.editForm.value.task,
         description: this.editForm.value.description,
-        dueDate: this.editForm.value.dueDate
+        dueDate: this.editForm.value.dueDate,
+        frequency: this.editForm.value.frequency,
+        addToCalendar: this.editForm.value.addToCalendar
       };
-      this.todoService.updateTodo(task.id, updated).then(() => {
+      this.todoService.updateTodo(task.id, updated).then(async () => {
+        if (this.editForm.value.addToCalendar) {
+          await this.addEventToGoogleCalendar(updated);
+        }
         this.editingIndex = null;
         this.fetchTodos();
       });
@@ -103,20 +125,66 @@ export class TodoListComponent implements OnInit {
     this.showAddTaskForm = !this.showAddTaskForm;
   }
 
-  addTask() {
+  async addTask() {
     if (this.todoForm.valid) {
       const newTodo: TodoItem = {
         userId: this.userId, // Uses Google logged-in user ID
         title: this.todoForm.value.task,
         description: this.todoForm.value.description,
         completed: false,
-        dueDate: this.todoForm.value.dueDate
+        dueDate: this.todoForm.value.dueDate,
+        frequency: this.todoForm.value.frequency,
+        addToCalendar: this.todoForm.value.addToCalendar
       };
-      this.todoService.addTodo(newTodo).then(() => {
+      this.todoService.addTodo(newTodo).then(async () => {
+        if (this.todoForm.value.addToCalendar) {
+          await this.addEventToGoogleCalendar(newTodo);
+        }
         this.todoForm.reset();
         this.fetchTodos();
         // Sorting will be handled in fetchTodos
       });
+    }
+  }
+  async addEventToGoogleCalendar(todo: TodoItem) {
+    // @ts-ignore
+    const gapi = window['gapi'];
+    if (!gapi || !gapi.client || !gapi.client.calendar) return;
+    const event: any = {
+      summary: todo.title,
+      description: todo.description || '',
+      start: {
+        date: todo.dueDate || new Date().toISOString().slice(0, 10)
+      },
+      end: {
+        date: todo.dueDate || new Date().toISOString().slice(0, 10)
+      }
+    };
+    // Set recurrence based on frequency
+    switch (todo.frequency) {
+      case 'daily':
+        event.recurrence = ['RRULE:FREQ=DAILY'];
+        break;
+      case 'weekly':
+        event.recurrence = ['RRULE:FREQ=WEEKLY'];
+        break;
+      case 'monthly':
+        event.recurrence = ['RRULE:FREQ=MONTHLY'];
+        break;
+      default:
+        break;
+    }
+    try {
+      await gapi.client.calendar.events.insert({
+        calendarId: 'primary',
+        resource: event
+      });
+      this.calendarMessage = 'Event added to Google Calendar!';
+      setTimeout(() => { this.calendarMessage = null; }, 4000);
+    } catch (e) {
+      this.calendarMessage = 'Failed to add event to Google Calendar.';
+      setTimeout(() => { this.calendarMessage = null; }, 4000);
+      console.error('Failed to add event to Google Calendar', e);
     }
   }
 

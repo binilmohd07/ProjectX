@@ -3,6 +3,20 @@
         <span class="header-title">To-do List</span>
     </mat-toolbar>
 </div>
+<div *ngIf="calendarMessage" class="calendar-message"
+    style="max-width:700px;margin:0 auto 16px auto;text-align:center;color:#388e3c;font-weight:500;">
+    {{ calendarMessage }}
+</div>
+<!-- Google Calendar Embed: Shows all events, holidays, and shared calendars -->
+<div class="google-calendar-embed" style="max-width: 700px; margin: 0 auto 24px auto;">
+    <button mat-stroked-button color="primary" style="margin-bottom: 8px; float: right;"
+        (click)="refreshCalendarIframe()">
+        Refresh Calendar
+    </button>
+    <iframe #calendarIframe
+        src="https://calendar.google.com/calendar/embed?src=primary&ctz=UTC&showTitle=0&showPrint=0&showTabs=1&showCalendars=1&showTz=1"
+        style="border: 0" width="100%" height="400" frameborder="0" scrolling="no"></iframe>
+</div>
 <div class="todo-list-container">
     <div class="add-task-toggle-row" *ngIf="tasks.length > 0 && !showAddTaskForm">
         <button mat-raised-button color="primary" (click)="toggleAddTaskForm()">
@@ -39,10 +53,22 @@
                         </mat-form-field>
                     </div>
                     <div class="add-form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Frequency</mat-label>
+                            <mat-select formControlName="frequency" required>
+                                <mat-option value="one time">One time</mat-option>
+                                <mat-option value="daily">Daily</mat-option>
+                                <mat-option value="weekly">Weekly</mat-option>
+                                <mat-option value="monthly">Monthly</mat-option>
+                            </mat-select>
+                        </mat-form-field>
                         <mat-form-field appearance="outline" class="form-field full-width">
                             <mat-label>Description (optional)</mat-label>
                             <textarea matInput formControlName="description" rows="2"></textarea>
                         </mat-form-field>
+                    </div>
+                    <div class="add-form-row">
+                        <mat-checkbox formControlName="addToCalendar">Add to calendar</mat-checkbox>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -88,10 +114,22 @@
                                 </mat-form-field>
                             </div>
                             <div class="edit-form-row">
+                                <mat-form-field appearance="outline" class="form-field">
+                                    <mat-label>Frequency</mat-label>
+                                    <mat-select formControlName="frequency" required>
+                                        <mat-option value="one time">One time</mat-option>
+                                        <mat-option value="daily">Daily</mat-option>
+                                        <mat-option value="weekly">Weekly</mat-option>
+                                        <mat-option value="monthly">Monthly</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
                                 <mat-form-field appearance="outline" class="form-field full-width">
                                     <mat-label>Description</mat-label>
                                     <textarea matInput formControlName="description" rows="2"></textarea>
                                 </mat-form-field>
+                            </div>
+                            <div class="edit-form-row">
+                                <mat-checkbox formControlName="addToCalendar">Add to calendar</mat-checkbox>
                             </div>
                         </div>
                         <div class="form-actions">
