@@ -1,4 +1,5 @@
 // ...existing code...
+// ...existing code...
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
@@ -40,6 +41,52 @@ function dueDateValidator(): ValidatorFn {
   styleUrls: ['./todo-list.component.scss']
 })
 export class TodoListComponent implements OnInit {
+  // Frequency options for dropdown
+  public frequencyOptions = [
+    { value: 'one time', label: 'One time' },
+    { value: 'daily', label: 'Daily' },
+    { value: 'weekly', label: 'Weekly' },
+    { value: 'monthly', label: 'Monthly' }
+  ];
+  // --- Mutual exclusion handlers for add form ---
+  onRepeatUntilChangeAddForm(val: string) {
+    const occurrencesCtrl = this.todoForm.get('occurrences');
+    if (val) {
+      occurrencesCtrl?.setValue('');
+      occurrencesCtrl?.disable({ emitEvent: false });
+    } else {
+      occurrencesCtrl?.enable({ emitEvent: false });
+    }
+  }
+  onOccurrencesChangeAddForm(val: string) {
+    const repeatUntilCtrl = this.todoForm.get('repeatUntil');
+    if (val) {
+      repeatUntilCtrl?.setValue('');
+      repeatUntilCtrl?.disable({ emitEvent: false });
+    } else {
+      repeatUntilCtrl?.enable({ emitEvent: false });
+    }
+  }
+  // --- Mutual exclusion handlers for edit form ---
+  onRepeatUntilChangeEditForm(val: string) {
+    const occurrencesCtrl = this.editForm.get('occurrences');
+    if (val) {
+      occurrencesCtrl?.setValue('');
+      occurrencesCtrl?.disable({ emitEvent: false });
+    } else {
+      occurrencesCtrl?.enable({ emitEvent: false });
+    }
+  }
+  onOccurrencesChangeEditForm(val: string) {
+    const repeatUntilCtrl = this.editForm.get('repeatUntil');
+    if (val) {
+      repeatUntilCtrl?.setValue('');
+      repeatUntilCtrl?.disable({ emitEvent: false });
+    } else {
+      repeatUntilCtrl?.enable({ emitEvent: false });
+    }
+  }
+  // Ensure both controls are enabled on form reset
   /**
    * Mark a specific occurrence of a recurring calendar event as complete.
    * @param todo The TodoItem with calendarEventId
@@ -63,11 +110,13 @@ export class TodoListComponent implements OnInit {
         if (!summary.startsWith('✔ ')) {
           summary = '✔ ' + summary;
         }
+        // Use colorId 11 (green) for completed events
         await gapi.client.calendar.events.patch({
           calendarId: 'primary',
           eventId: instance.id,
-          resource: { summary }
+          resource: { summary, colorId: '11' }
         });
+        this.refreshCalendarIframe();
       }
     } catch (e) {
       console.warn('Failed to mark calendar occurrence complete', e);
@@ -96,6 +145,20 @@ export class TodoListComponent implements OnInit {
       repeatUntil: task.repeatUntil,
       occurrences: task.occurrences
     });
+    // Ensure mutual exclusion logic is applied on form load
+    setTimeout(() => {
+      const repeatUntilVal = this.editForm.get('repeatUntil')?.value;
+      const occurrencesVal = this.editForm.get('occurrences')?.value;
+      if (repeatUntilVal) {
+        this.onRepeatUntilChangeEditForm(repeatUntilVal);
+      } else if (occurrencesVal) {
+        this.onOccurrencesChangeEditForm(String(occurrencesVal));
+      } else {
+        // Enable both if neither is set
+        this.editForm.get('repeatUntil')?.enable({ emitEvent: false });
+        this.editForm.get('occurrences')?.enable({ emitEvent: false });
+      }
+    }, 0);
   }
 
   async saveEditTask(i: number): Promise<void> {
@@ -110,9 +173,12 @@ export class TodoListComponent implements OnInit {
         frequency: this.editForm.value.frequency,
         addToCalendar: this.editForm.value.addToCalendar,
         repeatUntil: this.editForm.value.repeatUntil !== undefined ? this.editForm.value.repeatUntil : null,
-        occurrences: this.editForm.value.occurrences !== undefined ? this.editForm.value.occurrences : null,
-        calendarEventId: task.calendarEventId // ensure event id is preserved for update
+        occurrences: this.editForm.value.occurrences !== undefined ? this.editForm.value.occurrences : null
+        // calendarEventId handled below
       };
+      if (typeof task.calendarEventId !== 'undefined') {
+        (updated as any).calendarEventId = task.calendarEventId;
+      }
       if (task.id) {
         // If addToCalendar is checked, update or create event
         if (updated.addToCalendar) {
@@ -126,7 +192,6 @@ export class TodoListComponent implements OnInit {
                 calendarId: 'primary',
                 eventId: task.calendarEventId
               });
-              updated.calendarEventId = undefined;
               // Remove calendarEventId from Firestore
               const { calendarEventId, ...rest } = updated;
               await this.todoService.updateTodo(task.id, rest);
@@ -137,7 +202,9 @@ export class TodoListComponent implements OnInit {
               }
             }
           }
-          await this.todoService.updateTodo(task.id, updated);
+          // Only include calendarEventId if defined
+          const updateObj = typeof (updated as any).calendarEventId !== 'undefined' ? updated : { ...updated };
+          await this.todoService.updateTodo(task.id, updateObj);
           await this.addTaskToGoogleTasks({ ...updated, id: task.id });
         } else if (task.calendarEventId) {
           // If unchecked and event exists, remove from calendar
@@ -158,12 +225,15 @@ export class TodoListComponent implements OnInit {
             }
           }
         } else {
-          await this.todoService.updateTodo(task.id, updated);
+          // Only include calendarEventId if defined
+          const updateObj = typeof (updated as any).calendarEventId !== 'undefined' ? updated : { ...updated };
+          await this.todoService.updateTodo(task.id, updateObj);
         }
       }
       this.editingIndex = null;
       this.editForm.reset();
       this.fetchTodos();
+      this.refreshCalendarIframe();
     }
   }
   gisClient: any = null;
@@ -264,6 +334,11 @@ export class TodoListComponent implements OnInit {
       const url = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(this.userEmail)}&ctz=auto`;
       this.calendarIframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
+    // Ensure both controls are enabled on form load
+    this.todoForm.get('repeatUntil')?.enable({ emitEvent: false });
+    this.todoForm.get('occurrences')?.enable({ emitEvent: false });
+    this.editForm.get('repeatUntil')?.enable({ emitEvent: false });
+    this.editForm.get('occurrences')?.enable({ emitEvent: false });
     this.fetchTodos();
     // Initialize Google API client before using calendar API
     this.initGoogleApi()
@@ -314,8 +389,11 @@ export class TodoListComponent implements OnInit {
         addToCalendar: this.todoForm.value.addToCalendar,
         repeatUntil: this.todoForm.value.repeatUntil !== undefined ? this.todoForm.value.repeatUntil : null,
         occurrences: this.todoForm.value.occurrences !== undefined ? this.todoForm.value.occurrences : null
+        // calendarEventId handled after Google event creation
       };
-      await this.todoService.addTodo(newTodo);
+      // Only include calendarEventId if defined
+      const addObj = typeof (newTodo as any).calendarEventId !== 'undefined' ? newTodo : { ...newTodo };
+      await this.todoService.addTodo(addObj);
       if (this.todoForm.value.addToCalendar) {
         // Fetch the just-added todo from Firestore to get its ID
         const todos = await this.todoService.getTodos(this.userId).toPromise();
@@ -326,6 +404,7 @@ export class TodoListComponent implements OnInit {
       }
       this.todoForm.reset();
       await this.fetchTodos();
+      this.refreshCalendarIframe();
       // Sorting will be handled in fetchTodos
     }
   }
@@ -359,6 +438,7 @@ export class TodoListComponent implements OnInit {
     if (todo.id) {
       await this.todoService.deleteTodo(todo.id);
       this.fetchTodos();
+      this.refreshCalendarIframe();
     }
   }
 
@@ -387,15 +467,20 @@ export class TodoListComponent implements OnInit {
             const instance = (instancesResp.result.items || []).find((ev: any) => ev.start && (ev.start.date === instanceDate || ev.start.dateTime?.startsWith(instanceDate)));
             if (instance) {
               let summary = instance.summary || '';
+              let patchObj: any = {};
               if (completed && !summary.startsWith('✔ ')) {
                 summary = '✔ ' + summary;
+                patchObj = { summary, colorId: '11' };
               } else if (!completed && summary.startsWith('✔ ')) {
                 summary = summary.replace(/^✔ /, '');
+                patchObj = { summary };
+              } else {
+                patchObj = { summary };
               }
               await gapi.client.calendar.events.patch({
                 calendarId: 'primary',
                 eventId: instance.id,
-                resource: { summary }
+                resource: patchObj
               });
             } else {
               // fallback: update the main event (non-recurring or not found)
@@ -404,15 +489,20 @@ export class TodoListComponent implements OnInit {
                 eventId: todo.calendarEventId
               });
               let summary = eventResp.result.summary || '';
+              let patchObj: any = {};
               if (completed && !summary.startsWith('✔ ')) {
                 summary = '✔ ' + summary;
+                patchObj = { summary, colorId: '11' };
               } else if (!completed && summary.startsWith('✔ ')) {
                 summary = summary.replace(/^✔ /, '');
+                patchObj = { summary };
+              } else {
+                patchObj = { summary };
               }
               await gapi.client.calendar.events.patch({
                 calendarId: 'primary',
                 eventId: todo.calendarEventId,
-                resource: { summary }
+                resource: patchObj
               });
             }
           } catch (e) {
@@ -473,6 +563,26 @@ export class TodoListComponent implements OnInit {
   }
 
   async addTaskToGoogleTasks(todo: TodoItem): Promise<void> {
+    // Assign a colorId based on the number of events on the same day
+    let colorId = undefined;
+    if (todo.dueDate) {
+      try {
+        await this.ensureGoogleCalendarToken();
+        const gapi = (window as any).gapi;
+        const eventsResp = await gapi.client.calendar.events.list({
+          calendarId: 'primary',
+          timeMin: todo.dueDate + 'T00:00:00Z',
+          timeMax: todo.dueDate + 'T23:59:59Z',
+          singleEvents: true
+        });
+        const events = Array.isArray(eventsResp?.result?.items) ? eventsResp.result.items : [];
+        // Google Calendar supports colorId 1-11 (except 0)
+        const colorCycle = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        colorId = colorCycle[events.length % colorCycle.length].toString();
+      } catch (e) {
+        colorId = undefined;
+      }
+    }
     // Create a Google Calendar event for the task
     await this.ensureGoogleCalendarToken();
     const gapi = (window as any).gapi;
@@ -504,7 +614,8 @@ export class TodoListComponent implements OnInit {
       },
       end: {
         date: todo.dueDate || new Date().toISOString().slice(0, 10)
-      }
+      },
+      ...(colorId ? { colorId } : {})
     };
     // Add recurrence if needed
     if (todo.frequency && todo.frequency !== 'one time') {
@@ -537,7 +648,9 @@ export class TodoListComponent implements OnInit {
       }
       // Store the event id in your todo for future reference
       if (todo.id && response && response.result && response.result.id) {
-        await this.todoService.updateTodo(todo.id, { ...todo, calendarEventId: response.result.id });
+        // Only include calendarEventId if defined
+        const updateObj = { ...todo, calendarEventId: response.result.id };
+        await this.todoService.updateTodo(todo.id, updateObj);
       }
     } catch (err) {
       console.error('Failed to create/update Google Calendar event', err);
@@ -567,5 +680,57 @@ export class TodoListComponent implements OnInit {
         }
       }).requestAccessToken();
     });
+  }
+
+  /**
+   * Unmark a specific occurrence of a recurring calendar event as complete (remove '✔ ' and green color).
+   * @param todo The TodoItem with calendarEventId
+   * @param date The date string (YYYY-MM-DD) of the occurrence to unmark
+   */
+  async unmarkCalendarOccurrenceComplete(todo: UITodoItem, date: string): Promise<void> {
+    if (!todo.calendarEventId) return;
+    await this.ensureGoogleCalendarToken();
+    const gapi = (window as any).gapi;
+    try {
+      // Find the instance for the date
+      const instancesResp = await gapi.client.calendar.events.instances({
+        calendarId: 'primary',
+        eventId: todo.calendarEventId,
+        timeMin: date + 'T00:00:00Z',
+        timeMax: date + 'T23:59:59Z'
+      });
+      const instance = (instancesResp.result.items || []).find((ev: any) => ev.start && (ev.start.date === date || ev.start.dateTime?.startsWith(date)));
+      if (instance) {
+        let summary = instance.summary || '';
+        if (summary.startsWith('✔ ')) {
+          summary = summary.replace(/^✔ /, '');
+        }
+        // Restore colorId based on the number of events on the same day (cycle logic)
+        let colorId = '1';
+        try {
+          const eventsResp = await gapi.client.calendar.events.list({
+            calendarId: 'primary',
+            timeMin: date + 'T00:00:00Z',
+            timeMax: date + 'T23:59:59Z',
+            singleEvents: true
+          });
+          const events = Array.isArray(eventsResp?.result?.items) ? eventsResp.result.items : [];
+          const colorCycle = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+          // Find the index of this event instance among all events on the same day
+          const idx = events.findIndex((ev: any) => ev.id === instance.id);
+          colorId = colorCycle[(idx >= 0 ? idx : 0) % colorCycle.length].toString();
+        } catch (e) {
+          colorId = '1';
+        }
+        await gapi.client.calendar.events.patch({
+          calendarId: 'primary',
+          eventId: instance.id,
+          resource: { summary, colorId }
+        });
+        this.refreshCalendarIframe();
+      }
+    } catch (e) {
+      console.warn('Failed to unmark calendar occurrence complete', e);
+    }
   }
 }
