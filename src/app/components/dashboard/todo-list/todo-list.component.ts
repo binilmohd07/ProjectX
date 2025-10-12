@@ -114,15 +114,36 @@ export class TodoListComponent implements OnInit {
         calendarEventId: task.calendarEventId // ensure event id is preserved for update
       };
       if (task.id) {
-        await this.todoService.updateTodo(task.id, updated);
         // If addToCalendar is checked, update or create event
         if (updated.addToCalendar) {
-          await this.addTaskToGoogleTasks(updated);
+          // If the recurrence pattern changed, delete the old event and create a new one
+          const recurrenceChanged = (task.frequency !== updated.frequency) || (task.repeatUntil !== updated.repeatUntil) || (task.occurrences !== updated.occurrences) || (task.dueDate !== updated.dueDate);
+          if (task.calendarEventId && recurrenceChanged) {
+            try {
+              await this.ensureGoogleCalendarToken();
+              const gapi = (window as any).gapi;
+              await gapi.client.calendar.events.delete({
+                calendarId: 'primary',
+                eventId: task.calendarEventId
+              });
+              updated.calendarEventId = undefined;
+              // Remove calendarEventId from Firestore
+              const { calendarEventId, ...rest } = updated;
+              await this.todoService.updateTodo(task.id, rest);
+            } catch (e: any) {
+              const status = e?.result?.error?.code || e?.status;
+              if (status !== 410) {
+                console.warn('Failed to delete event from Google Calendar', e);
+              }
+            }
+          }
+          await this.todoService.updateTodo(task.id, updated);
+          await this.addTaskToGoogleTasks({ ...updated, id: task.id });
         } else if (task.calendarEventId) {
           // If unchecked and event exists, remove from calendar
-          await this.ensureGoogleCalendarToken();
-          const gapi = (window as any).gapi;
           try {
+            await this.ensureGoogleCalendarToken();
+            const gapi = (window as any).gapi;
             await gapi.client.calendar.events.delete({
               calendarId: 'primary',
               eventId: task.calendarEventId
@@ -131,12 +152,13 @@ export class TodoListComponent implements OnInit {
             const { calendarEventId, ...rest } = updated;
             await this.todoService.updateTodo(task.id, rest);
           } catch (e: any) {
-            // Ignore 410 Gone errors
             const status = e?.result?.error?.code || e?.status;
             if (status !== 410) {
               console.warn('Failed to delete event from Google Calendar', e);
             }
           }
+        } else {
+          await this.todoService.updateTodo(task.id, updated);
         }
       }
       this.editingIndex = null;
@@ -289,7 +311,9 @@ export class TodoListComponent implements OnInit {
         completed: false,
         dueDate: this.todoForm.value.dueDate,
         frequency: this.todoForm.value.frequency,
-        addToCalendar: this.todoForm.value.addToCalendar
+        addToCalendar: this.todoForm.value.addToCalendar,
+        repeatUntil: this.todoForm.value.repeatUntil !== undefined ? this.todoForm.value.repeatUntil : null,
+        occurrences: this.todoForm.value.occurrences !== undefined ? this.todoForm.value.occurrences : null
       };
       await this.todoService.addTodo(newTodo);
       if (this.todoForm.value.addToCalendar) {
@@ -313,7 +337,7 @@ export class TodoListComponent implements OnInit {
       return;
     }
     const todo = this.tasks[index];
-    // Remove from Google Calendar if calendarEventId exists
+    // Always try to remove from Google Calendar if calendarEventId exists
     if (todo.calendarEventId) {
       try {
         await this.ensureGoogleCalendarToken();
@@ -326,17 +350,15 @@ export class TodoListComponent implements OnInit {
       } catch (e) {
         console.warn('Failed to delete event from Google Calendar', e);
       }
-      // Optionally, remove calendarEventId from the todo
+      // Remove calendarEventId from the todo
       if (todo.id) {
         const { calendarEventId, ...rest } = todo;
         await this.todoService.updateTodo(todo.id, rest);
       }
-      this.fetchTodos();
     }
     if (todo.id) {
-      this.todoService.deleteTodo(todo.id).then(() => {
-        this.fetchTodos();
-      });
+      await this.todoService.deleteTodo(todo.id);
+      this.fetchTodos();
     }
   }
 

@@ -102,56 +102,58 @@
     <div class="todo-list-cards">
         <mat-card *ngFor="let task of tasks; let i = index" class="todo-card">
             <div class="todo-card-content">
-                                <ng-container *ngIf="editingIndex !== i; else editFormBlock">
-                                    <div class="todo-header-row">
-                                        <mat-checkbox [checked]="task.completed" (change)="confirmAndToggleTask(i)"></mat-checkbox>
-                                        <div class="todo-details">
-                                            <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
-                                            <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
-                                            <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate | date:'dd-MMM-yyyy' }}</span>
-                                        </div>
-                                    </div>
-                                    <span class="spacer"></span>
-                                    <!-- Mark Occurrence Complete UI for recurring calendar tasks -->
-                                    <ng-container *ngIf="task.calendarEventId && task.frequency && task.frequency !== 'one time'">
-                                        <button *ngIf="!task.showOccurrencePicker" mat-stroked-button color="primary"
-                                            (click)="task.showOccurrencePicker = true" style="margin: 12px auto 0 auto; min-width:220px; display:block;">
-                                            <mat-icon>event_available</mat-icon> Mark Occurrence Complete
-                                        </button>
-                                        <div *ngIf="task.showOccurrencePicker" class="occurrence-picker-card">
-                                            <mat-card
-                                                style="display: flex; align-items: center; justify-content: center; padding: 12px 20px; box-shadow: 0 2px 8px #1976d233; border-radius: 14px; background: #fff; min-width: 350px;">
-                                                <mat-form-field appearance="outline" style="width: 160px; margin: 0 18px 0 0;">
-                                                    <mat-label>Occurrence Date</mat-label>
-                                                    <input matInput type="date" [(ngModel)]="task.occurrenceDate"
-                                                        name="occurrenceDate{{i}}">
-                                                </mat-form-field>
-                                                <div style="display: flex; gap: 10px; align-items: center;">
-                                                    <button mat-flat-button color="primary"
-                                                        style="font-size: 0.92em; min-width: 90px; height: 36px; border-radius: 20px;"
-                                                        (click)="markCalendarOccurrenceComplete(task, task.occurrenceDate ?? ''); task.showOccurrencePicker = false;">
-                                                        Complete
-                                                    </button>
-                                                    <button mat-stroked-button color="warn"
-                                                        style="font-size: 0.92em; min-width: 80px; height: 36px; border-radius: 20px;"
-                                                        (click)="task.showOccurrencePicker = false">
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </mat-card>
-                                        </div>
-                                    </ng-container>
-                                    <div class="todo-actions-row">
-                                        <button mat-icon-button color="accent" (click)="startEditTask(i)">
-                                            <mat-icon class="edit-icon">edit</mat-icon>
-                                        </button>
-                                        <button mat-icon-button color="warn" (click)="removeTask(i)">
-                                            <mat-icon>delete</mat-icon>
-                                        </button>
-                                    </div>
-                                </ng-container>
+                <ng-container *ngIf="editingIndex !== i; else editFormBlock">
+                    <div class="todo-header-row">
+                        <mat-checkbox [checked]="task.completed" (change)="confirmAndToggleTask(i)"></mat-checkbox>
+                        <div class="todo-details">
+                            <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
+                            <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
+                            <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate | date:'dd-MMM-yyyy'
+                                }}</span>
+                        </div>
+                    </div>
+                    <span class="spacer"></span>
+                    <!-- Mark Occurrence Complete UI for recurring calendar tasks -->
+                    <ng-container *ngIf="task.calendarEventId && task.frequency && task.frequency !== 'one time'">
+                        <button *ngIf="!task.showOccurrencePicker" mat-stroked-button color="primary"
+                            (click)="task.showOccurrencePicker = true"
+                            style="margin: 12px auto 0 auto; min-width:220px; display:block;">
+                            <mat-icon>event_available</mat-icon> Mark Occurrence Complete
+                        </button>
+                        <div *ngIf="task.showOccurrencePicker" class="occurrence-picker-card">
+                            <mat-card
+                                style="display: flex; align-items: center; justify-content: center; padding: 12px 20px; box-shadow: 0 2px 8px #1976d233; border-radius: 14px; background: #fff; min-width: 350px;">
+                                <mat-form-field appearance="outline" style="width: 160px; margin: 0 18px 0 0;">
+                                    <mat-label>Occurrence Date</mat-label>
+                                    <input matInput type="date" [(ngModel)]="task.occurrenceDate"
+                                        name="occurrenceDate{{i}}">
+                                </mat-form-field>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button mat-flat-button color="primary"
+                                        style="font-size: 0.92em; min-width: 90px; height: 36px; border-radius: 20px;"
+                                        (click)="markCalendarOccurrenceComplete(task, task.occurrenceDate ?? ''); task.showOccurrencePicker = false;">
+                                        Complete
+                                    </button>
+                                    <button mat-stroked-button color="warn"
+                                        style="font-size: 0.92em; min-width: 80px; height: 36px; border-radius: 20px;"
+                                        (click)="task.showOccurrencePicker = false">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </mat-card>
+                        </div>
+                    </ng-container>
+                    <div class="todo-actions-row">
+                        <button mat-icon-button color="accent" (click)="startEditTask(i)">
+                            <mat-icon class="edit-icon">edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="removeTask(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </ng-container>
                 <ng-template #editFormBlock>
-                    <form [formGroup]="editForm" class="edit-form" (ngSubmit)="saveEditTask(i)">
+                    <form [formGroup]="editForm" class="edit-form beautified-edit-form" (ngSubmit)="saveEditTask(i)">
                         <div class="edit-form-fields">
                             <div class="edit-form-row">
                                 <mat-form-field appearance="outline" class="form-field">
