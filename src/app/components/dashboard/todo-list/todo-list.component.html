@@ -118,7 +118,8 @@
                         <button *ngIf="!task.showOccurrencePicker" mat-stroked-button color="primary"
                             (click)="task.showOccurrencePicker = true"
                             style="margin: 12px auto 0 auto; min-width:220px; display:block;">
-                            <mat-icon>event_available</mat-icon> Mark Occurrence Complete
+                            <mat-icon class="mark-completed-icon"
+                                style="font-size: 20px !important;">event_available</mat-icon> Mark Completed
                         </button>
                         <div *ngIf="task.showOccurrencePicker" class="occurrence-picker-card">
                             <mat-card

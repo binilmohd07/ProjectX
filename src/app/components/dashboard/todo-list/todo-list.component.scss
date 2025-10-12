@@ -1,3 +1,9 @@
+// Reduce font size for mark completed icon in the button
+.mark-completed-icon {
+    font-size: 18px !important;
+    vertical-align: middle;
+}
+
 .add-form-row .form-field.full-width textarea,
 .edit-form-row .form-field.full-width textarea {
     min-height: 56px !important;
