@@ -1,3 +1,112 @@
+<style>
+    .beautified-cancel-btn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .beautified-cancel-btn:hover {
+        background: #f44336;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(244, 67, 54, 0.18);
+    }
+
+    .add-form-header-row {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 48px;
+    }
+
+    .add-form-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        flex: 1;
+    }
+</style>
+<style>
+    .freq-desc-row {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 32px;
+        margin-bottom: 18px;
+        width: 100%;
+    }
+
+    .freq-col {
+        flex: 1 1 180px;
+        min-width: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .desc-col {
+        flex: 2 1 260px;
+        min-width: 260px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .freq-field,
+    .desc-field {
+        width: 100%;
+    }
+
+    @media (max-width: 700px) {
+        .freq-desc-row {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .freq-col,
+        .desc-col {
+            min-width: 0;
+        }
+    }
+
+    .freq-field .mat-form-field-label {
+        font-size: 1.08rem;
+        color: #3f51b5;
+        font-weight: 500;
+    }
+
+    .desc-field .mat-form-field-label {
+        font-size: 1.08rem;
+        color: #009688;
+        font-weight: 500;
+    }
+</style>
+<style>
+    .beautified-desc-field {
+        width: 100%;
+        min-width: 220px;
+    }
+
+    .beautified-desc-field .mat-form-field-label {
+        font-size: 1.08rem;
+        color: #009688;
+        font-weight: 500;
+    }
+
+    .beautified-desc-field .mat-input-element {
+        font-size: 1.15rem;
+        padding: 8px 0 8px 0;
+    }
+
+    @media (max-width: 700px) {
+        .beautified-desc-field {
+            min-width: 0;
+        }
+    }
+</style>
 <div>
     <mat-toolbar color="primary" class="page-header">
         <span class="header-title">To-do List</span>
@@ -8,15 +117,21 @@
     {{ calendarMessage }}
 </div>
 <!-- Google Calendar Embed: Shows all events, holidays, and shared calendars -->
-<div class="google-calendar-embed" style="max-width: 700px; margin: 0 auto 24px auto;">
-    <button mat-stroked-button color="primary" style="margin-bottom: 8px; float: right;"
-        (click)="refreshCalendarIframe()">
-        Refresh Calendar
-    </button>
-    <iframe #calendarIframe
-        src="https://calendar.google.com/calendar/embed?src=primary&ctz=UTC&showTitle=0&showPrint=0&showTabs=1&showCalendars=1&showTz=1"
-        style="border: 0" width="100%" height="400" frameborder="0" scrolling="no"></iframe>
+
+
+<!-- Embedded Google Calendar (shows events, holidays, and shared calendars) -->
+<div style="max-width:900px;margin:24px auto 24px auto;text-align:center;">
+    <div style="margin-top:16px;">
+        <button mat-stroked-button color="primary" style="margin-bottom: 12px;" (click)="refreshCalendarIframe()">
+            <mat-icon>refresh</mat-icon> Refresh Calendar
+        </button>
+        <iframe *ngIf="calendarIframeUrl" #calendarIframe [src]="calendarIframeUrl"
+            style="border: 1px solid #1976d2; width: 100%; min-height: 600px; border-radius: 8px; background: #fff;"
+            frameborder="0" scrolling="no" allowfullscreen>
+        </iframe>
+    </div>
 </div>
+
 <div class="todo-list-container">
     <div class="add-task-toggle-row" *ngIf="tasks.length > 0 && !showAddTaskForm">
         <button mat-raised-button color="primary" (click)="toggleAddTaskForm()">
@@ -24,12 +139,14 @@
         </button>
     </div>
     <form *ngIf="showAddTaskForm || tasks.length === 0" [formGroup]="todoForm" (ngSubmit)="addTask()" class="todo-form">
-        <mat-card class="todo-form-card">
+        <mat-card class="todo-form-card beautified-add-form">
             <mat-card-content>
-                <div class="form-fields" style="position: relative; display: flex; flex-direction: column;">
-                    <div style="display: flex; justify-content: flex-end; width: 100%;">
-                        <button *ngIf="tasks.length > 0" mat-icon-button type="button" class="close-add-task-btn"
-                            (click)="toggleAddTaskForm()" aria-label="Close Add Task">
+                <div class="add-form-fields">
+                    <div class="add-form-header-row">
+                        <span class="add-form-title">Add New Task</span>
+                        <button *ngIf="tasks.length > 0" mat-icon-button type="button"
+                            class="close-add-task-btn beautified-cancel-btn" (click)="toggleAddTaskForm()"
+                            aria-label="Close Add Task">
                             <mat-icon>close</mat-icon>
                         </button>
                     </div>
@@ -44,6 +161,11 @@
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Due Date (optional)</mat-label>
                             <input matInput type="date" formControlName="dueDate">
+                            <button *ngIf="todoForm.get('dueDate')?.value" mat-icon-button matSuffix tabindex="-1"
+                                aria-label="Clear due date" (click)="todoForm.get('dueDate')?.setValue('')"
+                                style="margin-right: -8px;">
+                                <mat-icon>close</mat-icon>
+                            </button>
                             <mat-error *ngIf="todoForm.get('dueDate')?.hasError('invalidDate')">
                                 Please enter a valid date.
                             </mat-error>
@@ -52,32 +174,53 @@
                             </mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="add-form-row">
+                    <div class="">
+
+                        <div class="freq-col">
+                            <mat-form-field appearance="outline" class="freq-field">
+                                <mat-label>Frequency</mat-label>
+                                <mat-select formControlName="frequency" required>
+                                    <mat-option *ngFor="let freq of frequencyOptions" [value]="freq.value">{{
+                                        freq.label }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="desc-col">
+                            <mat-form-field appearance="outline" class="desc-field">
+                                <mat-label>Description</mat-label>
+                                <input matInput formControlName="description" maxlength="100" autocomplete="off">
+                            </mat-form-field>
+                        </div>
+
+                    </div>
+                    <div class="add-form-row"
+                        *ngIf="todoForm.get('addToCalendar')?.value && todoForm.get('frequency')?.value !== 'one time'">
                         <mat-form-field appearance="outline" class="form-field">
-                            <mat-label>Frequency</mat-label>
-                            <mat-select formControlName="frequency" required>
-                                <mat-option value="one time">One time</mat-option>
-                                <mat-option value="daily">Daily</mat-option>
-                                <mat-option value="weekly">Weekly</mat-option>
-                                <mat-option value="monthly">Monthly</mat-option>
-                            </mat-select>
+                            <mat-label>Repeat Until (last date)</mat-label>
+                            <input matInput type="date" formControlName="repeatUntil"
+                                (ngModelChange)="onRepeatUntilChangeAddForm($event)">
+                            <button *ngIf="todoForm.get('repeatUntil')?.value" mat-icon-button matSuffix tabindex="-1"
+                                aria-label="Clear repeat until" (click)="todoForm.get('repeatUntil')?.setValue('')"
+                                style="margin-right: -8px;">
+                                <mat-icon>close</mat-icon>
+                            </button>
                         </mat-form-field>
-                        <mat-form-field appearance="outline" class="form-field full-width">
-                            <mat-label>Description (optional)</mat-label>
-                            <textarea matInput formControlName="description" rows="2"></textarea>
+                        <span style="margin: 0 8px; align-self: center;">or</span>
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Number of Occurrences</mat-label>
+                            <input matInput type="number" min="1" formControlName="occurrences"
+                                (ngModelChange)="onOccurrencesChangeAddForm($event)">
                         </mat-form-field>
                     </div>
                     <div class="add-form-row">
                         <mat-checkbox formControlName="addToCalendar">Add to calendar</mat-checkbox>
                     </div>
-                </div>
-                <div class="form-actions">
-                    <button mat-raised-button color="primary" type="submit" [disabled]="
-        todoForm.invalid ||
-        (todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid)
-    ">
-                        Add
-                    </button>
+                    <div class="form-actions">
+                        <button mat-raised-button color="primary" type="submit"
+                            [disabled]="todoForm.invalid || (todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid)">
+                            Add
+                        </button>
+                    </div>
                 </div>
             </mat-card-content>
         </mat-card>
@@ -86,22 +229,70 @@
         <mat-card *ngFor="let task of tasks; let i = index" class="todo-card">
             <div class="todo-card-content">
                 <ng-container *ngIf="editingIndex !== i; else editFormBlock">
-                    <mat-checkbox [checked]="task.completed" (change)="toggleTask(i)"></mat-checkbox>
-                    <div class="todo-details">
-                        <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
-                        <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
-                        <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate | date:'dd-MMM-yyyy' }}</span>
+                    <div class="todo-header-row">
+                        <mat-checkbox [checked]="task.completed" (change)="confirmAndToggleTask(i)"></mat-checkbox>
+                        <div class="todo-details">
+                            <span [class.completed]="task.completed" class="todo-title">{{ task.title }}</span>
+                            <span *ngIf="task.description" class="todo-description">{{ task.description }}</span>
+                            <span *ngIf="task.dueDate" class="todo-date">Due: {{ task.dueDate | date:'dd-MMM-yyyy'
+                                }}</span>
+                        </div>
                     </div>
                     <span class="spacer"></span>
-                    <button mat-icon-button color="accent" (click)="startEditTask(i)">
-                        <mat-icon class="edit-icon">edit</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="removeTask(i)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
+                    <!-- Mark Occurrence Complete UI for recurring calendar tasks -->
+                    <ng-container *ngIf="task.calendarEventId && task.frequency && task.frequency !== 'one time'">
+                        <button *ngIf="!task.showOccurrencePicker" mat-stroked-button color="primary"
+                            (click)="task.showOccurrencePicker = true"
+                            style="margin: 12px auto 0 auto; min-width:220px; display:block;">
+                            <mat-icon class="mark-completed-icon"
+                                style="font-size: 20px !important;">event_available</mat-icon> Mark Completed
+                        </button>
+                        <div *ngIf="task.showOccurrencePicker" class="occurrence-picker-card">
+                            <mat-card
+                                style="display: flex; align-items: center; justify-content: center; padding: 12px 20px; box-shadow: 0 2px 8px #1976d233; border-radius: 14px; background: #fff; min-width: 350px;">
+                                <mat-form-field appearance="outline" style="width: 160px; margin: 0 18px 0 0;">
+                                    <mat-label>Occurrence Date</mat-label>
+                                    <input matInput type="date" [(ngModel)]="task.occurrenceDate"
+                                        name="occurrenceDate{{i}}">
+                                    <button *ngIf="task.occurrenceDate" mat-icon-button matSuffix tabindex="-1"
+                                        aria-label="Clear date" (click)="task.occurrenceDate = ''"
+                                        style="margin-right: -8px;">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button mat-flat-button color="primary"
+                                        style="font-size: 12px; min-width: 90px; height: 36px; border-radius: 20px;"
+                                        [disabled]="!task.occurrenceDate || task.occurrenceDate.length !== 10"
+                                        (click)="markCalendarOccurrenceComplete(task, task.occurrenceDate ?? ''); task.occurrenceDate = ''; task.showOccurrencePicker = false;">
+                                        Complete
+                                    </button>
+                                    <button mat-flat-button color="accent" color="warn"
+                                        style="font-size: 12px; min-width: 120px; height: 36px; border-radius: 20px;"
+                                        [disabled]="!task.occurrenceDate || task.occurrenceDate.length !== 10"
+                                        (click)="unmarkCalendarOccurrenceComplete(task, task.occurrenceDate ?? ''); task.occurrenceDate = ''; task.showOccurrencePicker = false;">
+                                        Unmark
+                                    </button>
+                                    <button mat-stroked-button color="warn"
+                                        style="font-size: 12px; min-width: 80px; height: 36px; border-radius: 20px;"
+                                        (click)="task.showOccurrencePicker = false">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </mat-card>
+                        </div>
+                    </ng-container>
+                    <div class="todo-actions-row">
+                        <button mat-icon-button color="accent" (click)="startEditTask(i)">
+                            <mat-icon class="edit-icon">edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="removeTask(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
                 </ng-container>
                 <ng-template #editFormBlock>
-                    <form [formGroup]="editForm" class="edit-form" (ngSubmit)="saveEditTask(i)">
+                    <form [formGroup]="editForm" class="edit-form beautified-edit-form" (ngSubmit)="saveEditTask(i)">
                         <div class="edit-form-fields">
                             <div class="edit-form-row">
                                 <mat-form-field appearance="outline" class="form-field">
@@ -111,6 +302,11 @@
                                 <mat-form-field appearance="outline" class="form-field">
                                     <mat-label>Due Date</mat-label>
                                     <input matInput type="date" formControlName="dueDate">
+                                    <button *ngIf="editForm.get('dueDate')?.value" mat-icon-button matSuffix
+                                        tabindex="-1" aria-label="Clear due date"
+                                        (click)="editForm.get('dueDate')?.setValue('')" style="margin-right: -8px;">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
                                 </mat-form-field>
                             </div>
                             <div class="edit-form-row">
@@ -123,9 +319,28 @@
                                         <mat-option value="monthly">Monthly</mat-option>
                                     </mat-select>
                                 </mat-form-field>
-                                <mat-form-field appearance="outline" class="form-field full-width">
+                                <mat-form-field appearance="outline" class="desc-field beautified-desc-field">
                                     <mat-label>Description</mat-label>
-                                    <textarea matInput formControlName="description" rows="2"></textarea>
+                                    <input matInput formControlName="description" maxlength="100" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+                            <div class="edit-form-row"
+                                *ngIf="editForm.get('addToCalendar')?.value && editForm.get('frequency')?.value !== 'one time'">
+                                <mat-form-field appearance="outline" class="form-field">
+                                    <mat-label>Repeat Until (last date)</mat-label>
+                                    <input matInput type="date" formControlName="repeatUntil"
+                                        (ngModelChange)="onRepeatUntilChangeEditForm($event)">
+                                    <button *ngIf="editForm.get('repeatUntil')?.value" mat-icon-button matSuffix
+                                        tabindex="-1" aria-label="Clear repeat until"
+                                        (click)="editForm.get('repeatUntil')?.setValue('')" style="margin-right: -8px;">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                                <span style="margin: 0 8px; align-self: center;">or</span>
+                                <mat-form-field appearance="outline" class="form-field">
+                                    <mat-label>Number of Occurrences</mat-label>
+                                    <input matInput type="number" min="1" formControlName="occurrences"
+                                        (ngModelChange)="onOccurrencesChangeEditForm($event)">
                                 </mat-form-field>
                             </div>
                             <div class="edit-form-row">

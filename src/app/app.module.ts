@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -40,6 +40,7 @@ import { SavingsComponent } from './components/dashboard/finance/savings/savings
   imports: [
     BrowserModule,
     ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,

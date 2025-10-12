@@ -14,6 +14,10 @@ export interface TodoItem {
   dueDate?: string; // <-- Optional due date
   frequency?: 'one time' | 'daily' | 'weekly' | 'monthly';
   addToCalendar?: boolean;
+  calendarEventId?: string; // <-- Google Calendar event ID
+  calendarTaskId?: string; // <-- Google Task ID
+  repeatUntil?: string; // <-- Last date for recurring event
+  occurrences?: number; // <-- Number of occurrences for recurring event
 }
 
 @Injectable({
