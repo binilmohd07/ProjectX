@@ -11,7 +11,8 @@ export class LoginGuard implements CanActivate {
   canActivate(): Promise<boolean> {
     return new Promise(resolve => {
       onAuthStateChanged(auth, (user) => {
-        if (user) {
+        const calendarToken = localStorage.getItem('google_calendar_token');
+        if (user && calendarToken) {
           this.router.navigate(['/dashboard']);
           resolve(false);
         } else {

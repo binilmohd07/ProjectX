@@ -15,12 +15,12 @@ export class LoginComponent {
   ) { }
 
   user: any;
+
   signInWithGoogle() {
     this.authService.loginWithGoogle().then(async res => {
       this.user = res.user;
       // After Firebase login, also request Google Calendar access
       await this.initGoogleCalendarAuth();
-      this.router.navigate(['/dashboard']);
     });
   }
 
@@ -60,7 +60,8 @@ export class LoginComponent {
       callback: (tokenResponse: any) => {
         if (tokenResponse && tokenResponse.access_token) {
           gapi.client.setToken({ access_token: tokenResponse.access_token });
-          // Optionally store token in localStorage/sessionStorage if needed
+          localStorage.setItem('google_calendar_token', tokenResponse.access_token);
+          this.router.navigate(['/dashboard']);
         }
       }
     });
