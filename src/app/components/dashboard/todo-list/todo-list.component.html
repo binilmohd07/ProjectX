@@ -68,7 +68,7 @@
                     <div class="">
 
                         <div class="freq-col">
-                            <mat-form-field appearance="outline" class="freq-field">
+                            <mat-form-field appearance="outline" class="w-100">
                                 <mat-label>Frequency</mat-label>
                                 <mat-select formControlName="frequency" required>
                                     <mat-option *ngFor="let freq of frequencyOptions" [value]="freq.value">{{
@@ -77,7 +77,7 @@
                             </mat-form-field>
                         </div>
                         <div class="desc-col">
-                            <mat-form-field appearance="outline" class="desc-field">
+                            <mat-form-field appearance="outline" class="w-100">
                                 <mat-label>Description</mat-label>
                                 <input matInput formControlName="description" maxlength="100" autocomplete="off">
                             </mat-form-field>
