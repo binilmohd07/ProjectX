@@ -1,13 +1,19 @@
-// Add Google Identity Services types
-declare var google: any;
-
+// ...existing code...
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
 import { TodoService, TodoItem } from '../../../services/todo/todo.service';
+
+// UI extension of TodoItem for template-only properties
+interface UITodoItem extends TodoItem {
+  showOccurrencePicker?: boolean;
+  occurrenceDate?: string;
+}
 import { AuthService } from '../../../services/auth.service';
 import { firebaseConfig } from '../../../firebase.config';
 
+// Add Google Identity Services types
+declare var google: any;
 declare var gapi: any;
 
 // Custom validator for due date
@@ -34,6 +40,39 @@ function dueDateValidator(): ValidatorFn {
   styleUrls: ['./todo-list.component.scss']
 })
 export class TodoListComponent implements OnInit {
+  /**
+   * Mark a specific occurrence of a recurring calendar event as complete.
+   * @param todo The TodoItem with calendarEventId
+   * @param date The date string (YYYY-MM-DD) of the occurrence to mark complete
+   */
+  async markCalendarOccurrenceComplete(todo: UITodoItem, date: string): Promise<void> {
+    if (!todo.calendarEventId) return;
+    await this.ensureGoogleCalendarToken();
+    const gapi = (window as any).gapi;
+    try {
+      // Find the instance for the date
+      const instancesResp = await gapi.client.calendar.events.instances({
+        calendarId: 'primary',
+        eventId: todo.calendarEventId,
+        timeMin: date + 'T00:00:00Z',
+        timeMax: date + 'T23:59:59Z'
+      });
+      const instance = (instancesResp.result.items || []).find((ev: any) => ev.start && (ev.start.date === date || ev.start.dateTime?.startsWith(date)));
+      if (instance) {
+        let summary = instance.summary || '';
+        if (!summary.startsWith('✔ ')) {
+          summary = '✔ ' + summary;
+        }
+        await gapi.client.calendar.events.patch({
+          calendarId: 'primary',
+          eventId: instance.id,
+          resource: { summary }
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to mark calendar occurrence complete', e);
+    }
+  }
   @ViewChild('calendarIframe') calendarIframe!: ElementRef;
   refreshCalendarIframe(): void {
     // Refresh the embedded Google Calendar iframe by resetting its src
@@ -112,13 +151,14 @@ export class TodoListComponent implements OnInit {
   calendarIframeUrl: SafeResourceUrl | null = null;
   calendarMessage: string | null = null;
   calendarEvents: any[] = [];
-  tasks: TodoItem[] = [];
+  tasks: UITodoItem[] = [];
   userId: string = '';
   loading: boolean = true;
   showAddTaskForm: boolean = false;
   editingIndex: number | null = null;
   todoForm: FormGroup;
   editForm: FormGroup;
+
 
   constructor(
     private fb: FormBuilder,
@@ -144,6 +184,48 @@ export class TodoListComponent implements OnInit {
       repeatUntil: [''],
       occurrences: ['']
     });
+  }
+
+  /**
+   * Confirm before toggling completion. If calendar event, mark all instances as complete.
+   */
+  async confirmAndToggleTask(index: number): Promise<void> {
+    const todo = this.tasks[index];
+    if (todo.calendarEventId) {
+      const confirmed = window.confirm('Are you sure you want to mark all occurrences of this calendar event as complete?');
+      if (!confirmed) return;
+      await this.markAllCalendarOccurrencesComplete(todo);
+    }
+    this.toggleTask(index);
+  }
+
+  /**
+   * Mark all instances of a recurring calendar event as complete.
+   */
+  async markAllCalendarOccurrencesComplete(todo: UITodoItem): Promise<void> {
+    await this.ensureGoogleCalendarToken();
+    const gapi = (window as any).gapi;
+    try {
+      // Get all instances of the recurring event
+      const instancesResp = await gapi.client.calendar.events.instances({
+        calendarId: 'primary',
+        eventId: todo.calendarEventId
+      });
+      const items = instancesResp.result.items || [];
+      for (const instance of items) {
+        let summary = instance.summary || '';
+        if (!summary.startsWith('✔ ')) {
+          summary = '✔ ' + summary;
+          await gapi.client.calendar.events.patch({
+            calendarId: 'primary',
+            eventId: instance.id,
+            resource: { summary }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to mark all calendar occurrences complete', e);
+    }
   }
 
 
@@ -176,7 +258,16 @@ export class TodoListComponent implements OnInit {
   fetchTodos(): void {
     this.todoService.getTodos(this.userId).subscribe((todos: TodoItem[]) => {
       // Sort: incomplete first, completed last
-      this.tasks = todos.sort((a: TodoItem, b: TodoItem) => Number(a.completed) - Number(b.completed));
+      this.tasks = todos
+        .sort((a: TodoItem, b: TodoItem) => Number(a.completed) - Number(b.completed))
+        .map((task: TodoItem) => {
+          const uiTask: UITodoItem = { ...task };
+          if (uiTask.calendarEventId && uiTask.frequency && uiTask.frequency !== 'one time') {
+            if (typeof uiTask.showOccurrencePicker === 'undefined') uiTask.showOccurrencePicker = false;
+            if (typeof uiTask.occurrenceDate === 'undefined') uiTask.occurrenceDate = '';
+          }
+          return uiTask;
+        });
       this.loading = false;
       // Show add task form if no tasks exist
       this.showAddTaskForm = this.tasks.length === 0;
@@ -255,7 +346,57 @@ export class TodoListComponent implements OnInit {
   toggleTask(index: number): void {
     const todo = this.tasks[index];
     if (todo.id) {
-      this.todoService.updateTodo(todo.id, { ...todo, completed: !todo.completed }).then(() => {
+      const completed = !todo.completed;
+      this.todoService.updateTodo(todo.id, { ...todo, completed }).then(async () => {
+        // Update Google Calendar event title if exists
+        if (todo.calendarEventId) {
+          await this.ensureGoogleCalendarToken();
+          const gapi = (window as any).gapi;
+          try {
+            // If this is a recurring event, update only the instance for today (or dueDate)
+            const instanceDate = todo.dueDate || new Date().toISOString().slice(0, 10);
+            // Find the instance for the date
+            const instancesResp = await gapi.client.calendar.events.instances({
+              calendarId: 'primary',
+              eventId: todo.calendarEventId,
+              timeMin: instanceDate + 'T00:00:00Z',
+              timeMax: instanceDate + 'T23:59:59Z'
+            });
+            const instance = (instancesResp.result.items || []).find((ev: any) => ev.start && (ev.start.date === instanceDate || ev.start.dateTime?.startsWith(instanceDate)));
+            if (instance) {
+              let summary = instance.summary || '';
+              if (completed && !summary.startsWith('✔ ')) {
+                summary = '✔ ' + summary;
+              } else if (!completed && summary.startsWith('✔ ')) {
+                summary = summary.replace(/^✔ /, '');
+              }
+              await gapi.client.calendar.events.patch({
+                calendarId: 'primary',
+                eventId: instance.id,
+                resource: { summary }
+              });
+            } else {
+              // fallback: update the main event (non-recurring or not found)
+              const eventResp = await gapi.client.calendar.events.get({
+                calendarId: 'primary',
+                eventId: todo.calendarEventId
+              });
+              let summary = eventResp.result.summary || '';
+              if (completed && !summary.startsWith('✔ ')) {
+                summary = '✔ ' + summary;
+              } else if (!completed && summary.startsWith('✔ ')) {
+                summary = summary.replace(/^✔ /, '');
+              }
+              await gapi.client.calendar.events.patch({
+                calendarId: 'primary',
+                eventId: todo.calendarEventId,
+                resource: { summary }
+              });
+            }
+          } catch (e) {
+            console.warn('Failed to update calendar event completion status', e);
+          }
+        }
         this.fetchTodos();
         // Sorting will be handled in fetchTodos
       });

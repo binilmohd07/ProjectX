@@ -1,3 +1,121 @@
+// Responsive header and actions row for todo card
+.todo-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.todo-actions-row {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+@media (max-width: 600px) {
+    .todo-header-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    .todo-actions-row {
+        flex-direction: row;
+        justify-content: center;
+        gap: 18px;
+        margin-top: 18px;
+    }
+}
+// Responsive todo card styles
+.todo-card {
+    background: #fafdff;
+    border: 1.5px solid #b6d0ff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(25, 118, 210, 0.10);
+    margin: 0 auto 18px auto;
+    max-width: 700px;
+    padding: 18px 18px 12px 18px;
+    transition: box-shadow 0.2s;
+}
+
+.todo-card-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.todo-details {
+    flex: 1 1 120px;
+    min-width: 0;
+    word-break: break-word;
+    font-size: 1.08rem;
+    color: #222;
+    margin-left: 6px;
+}
+
+.todo-title {
+    font-weight: 600;
+    font-size: 1.12rem;
+    color: #1976d2;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.todo-description {
+    color: #555;
+    font-size: 0.98rem;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.todo-date {
+    color: #888;
+    font-size: 0.93rem;
+    display: block;
+}
+
+.spacer {
+    flex: 0 0 8px;
+}
+
+// Responsive occurrence picker card
+.occurrence-picker-card mat-card {
+    width: 100%;
+    max-width: 370px;
+    margin: 10px auto 0 auto;
+    padding: 14px 10px 12px 10px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 2px 12px 0 rgba(25, 118, 210, 0.10);
+    background: #fafdff !important;
+}
+
+@media (max-width: 600px) {
+    .todo-card {
+        max-width: 98vw;
+        padding: 10px 4vw 8px 4vw;
+        border-radius: 14px;
+    }
+    .todo-card-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .occurrence-picker-card mat-card {
+        max-width: 98vw;
+        padding: 10px 2vw 10px 2vw !important;
+        border-radius: 12px !important;
+    }
+    .todo-title {
+        font-size: 1.05rem;
+    }
+    .todo-details {
+        font-size: 1rem;
+    }
+}
 // Beautified add form styles
 .beautified-add-form {
     background: #fafdff;
