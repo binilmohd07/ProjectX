@@ -1,7 +1,9 @@
+
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { firebaseConfig } from '../../firebase.config';
+import { GoogleAuthProvider } from 'firebase/auth';
 
 @Component({
   selector: 'app-login',
@@ -15,12 +17,27 @@ export class LoginComponent {
   ) { }
 
   user: any;
+
   signInWithGoogle() {
+    // Only redirect if both Firebase user and calendar token exist
+    if (this.authService.getUser()) {
+      const existingToken = localStorage.getItem('google_calendar_token');
+      if (existingToken) {
+        this.router.navigate(['/dashboard']);
+        return;
+      }
+    }
+    // Otherwise, always run the sign-in flow
     this.authService.loginWithGoogle().then(async res => {
       this.user = res.user;
-      // After Firebase login, also request Google Calendar access
-      await this.initGoogleCalendarAuth();
-      this.router.navigate(['/dashboard']);
+      const credential = GoogleAuthProvider.credentialFromResult(res);
+      const accessToken = credential?.accessToken;
+      if (accessToken) {
+        localStorage.setItem('google_calendar_token', accessToken);
+        this.router.navigate(['/dashboard']);
+      } else {
+        await this.initGoogleCalendarAuth();
+      }
     });
   }
 
@@ -60,7 +77,8 @@ export class LoginComponent {
       callback: (tokenResponse: any) => {
         if (tokenResponse && tokenResponse.access_token) {
           gapi.client.setToken({ access_token: tokenResponse.access_token });
-          // Optionally store token in localStorage/sessionStorage if needed
+          localStorage.setItem('google_calendar_token', tokenResponse.access_token);
+          this.router.navigate(['/dashboard']);
         }
       }
     });

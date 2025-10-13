@@ -68,7 +68,7 @@
                     <div class="">
 
                         <div class="freq-col">
-                            <mat-form-field appearance="outline" class="freq-field">
+                            <mat-form-field appearance="outline" class="w-100">
                                 <mat-label>Frequency</mat-label>
                                 <mat-select formControlName="frequency" required>
                                     <mat-option *ngFor="let freq of frequencyOptions" [value]="freq.value">{{
@@ -77,7 +77,7 @@
                             </mat-form-field>
                         </div>
                         <div class="desc-col">
-                            <mat-form-field appearance="outline" class="desc-field">
+                            <mat-form-field appearance="outline" class="w-100">
                                 <mat-label>Description</mat-label>
                                 <input matInput formControlName="description" maxlength="100" autocomplete="off">
                             </mat-form-field>
@@ -200,8 +200,8 @@
                                     </button>
                                 </mat-form-field>
                             </div>
-                            <div class="edit-form-row">
-                                <mat-form-field appearance="outline" class="form-field">
+                            <div>
+                                <mat-form-field appearance="outline" class="form-field w-100">
                                     <mat-label>Frequency</mat-label>
                                     <mat-select formControlName="frequency" required>
                                         <mat-option value="one time">One time</mat-option>
@@ -210,7 +210,7 @@
                                         <mat-option value="monthly">Monthly</mat-option>
                                     </mat-select>
                                 </mat-form-field>
-                                <mat-form-field appearance="outline" class="desc-field beautified-desc-field">
+                                <mat-form-field appearance="outline" class="desc-field beautified-desc-field w-100">
                                     <mat-label>Description</mat-label>
                                     <input matInput formControlName="description" maxlength="100" autocomplete="off">
                                 </mat-form-field>

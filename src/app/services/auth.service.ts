@@ -17,6 +17,7 @@ export class AuthService {
 
   loginWithGoogle() {
     const provider = new GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/calendar');
     return signInWithPopup(auth, provider);
   }
 
