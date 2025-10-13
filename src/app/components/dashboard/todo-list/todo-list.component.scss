@@ -172,33 +172,91 @@
 }
 
 // Beautified edit form inside todo card
+
+// Beautified edit form
 .edit-form {
-    border-radius: 12px;
-    padding: 18px 16px 10px 16px;
-    margin: 0 0 8px 0;
+    width: 100%;
+    border-radius: 16px;
+    padding: 22px 18px 14px 18px;
+    margin: 0 0 12px 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
 }
 
-.edit-form .form-field {
-    margin-bottom: 8px;
+.edit-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.edit-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: flex-end;
+}
+
+.edit-form-row .form-field {
+    flex: 1 1 220px;
+    min-width: 180px;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+
+.edit-form-row .form-field.full-width {
+    flex: 2 1 320px;
+}
+
+.edit-form-row span[style] {
+    min-width: 32px;
+    text-align: center;
+    color: #888;
+    font-size: 1rem;
 }
 
 .edit-form .form-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: flex-end;
     margin-top: 8px;
 }
 
 .edit-form button[type="submit"] {
     min-width: 80px;
-
 }
 
 .edit-form button[type="button"] {
     min-width: 60px;
+}
+
+@media (max-width: 900px) {
+    .edit-form-row {
+        gap: 10px;
+    }
+
+    .edit-form {
+        padding: 14px 6px 10px 6px;
+    }
+}
+
+@media (max-width: 700px) {
+    .edit-form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .edit-form-row .form-field,
+    .edit-form-row .form-field.full-width {
+        min-width: 0;
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .edit-form {
+        padding: 10px 2vw 8px 2vw;
+        border-radius: 14px;
+    }
 }
 
 
