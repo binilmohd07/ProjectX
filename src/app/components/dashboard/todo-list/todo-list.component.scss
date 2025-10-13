@@ -9,14 +9,6 @@
     transition: background 0.2s, box-shadow 0.2s;
 }
 
-.spacer {
-    flex: 0 0 8px;
-}
-
-.w-100 {
-    width: 100% !important;
-}
-
 // Responsive occurrence picker card
 .occurrence-picker-card mat-card {
     width: 100%;
@@ -171,79 +163,96 @@
     font-size: 26px !important;
 }
 
-// Beautified edit form inside todo card
-
-// Beautified edit form
 .edit-form {
     width: 100%;
-    border-radius: 16px;
-    padding: 22px 18px 14px 18px;
-    margin: 0 0 12px 0;
+    border-radius: 14px;
+    padding: 14px 8px 10px 8px;
+    margin: 0 0 8px 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
 }
+
 
 .edit-form-fields {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
+}
+
+.w-100 {
+    width: 100% !important;
 }
 
 .edit-form-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
+    gap: 10px;
     align-items: flex-end;
 }
 
+
 .edit-form-row .form-field {
-    flex: 1 1 220px;
-    min-width: 180px;
+    flex: 1 1 180px;
+    min-width: 120px;
     max-width: 100%;
     margin-bottom: 0;
 }
 
+
 .edit-form-row .form-field.full-width {
-    flex: 2 1 320px;
+    flex: 2 1 220px;
 }
 
+
 .edit-form-row span[style] {
-    min-width: 32px;
+    min-width: 24px;
     text-align: center;
     color: #888;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
+
 
 .edit-form .form-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     justify-content: flex-end;
     margin-top: 8px;
 }
 
+
 .edit-form button[type="submit"] {
-    min-width: 80px;
+    min-width: 70px;
 }
 
 .edit-form button[type="button"] {
-    min-width: 60px;
+    min-width: 50px;
 }
 
 @media (max-width: 900px) {
     .edit-form-row {
-        gap: 10px;
+        gap: 6px;
     }
 
     .edit-form {
-        padding: 14px 6px 10px 6px;
+        padding: 8px 2vw 8px 2vw;
+    }
+
+    .todo-card,
+    .todo-form-card {
+        max-width: 100%;
+        padding: 14px 8px;
+    }
+
+    .form-fields {
+        gap: 10px;
     }
 }
 
 @media (max-width: 700px) {
     .edit-form-row {
         flex-direction: column;
-        gap: 10px;
+        gap: 6px;
     }
 
     .edit-form-row .form-field,
@@ -254,8 +263,37 @@
     }
 
     .edit-form {
-        padding: 10px 2vw 8px 2vw;
-        border-radius: 14px;
+        padding: 6px 1vw 6px 1vw;
+        border-radius: 10px;
+    }
+
+    .todo-list-cards {
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .todo-card,
+    .todo-form-card {
+        padding: 10px 4px;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .todo-title {
+        font-size: 1rem;
+    }
+
+    .todo-details {
+        margin-left: 10px;
+    }
+
+    .form-fields {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-actions {
+        justify-content: center;
     }
 }
 
@@ -423,9 +461,6 @@
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 24px;
-    // border-radius: 14px;
-    // box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08), 0 1.5px 6px rgba(0, 0, 0, 0.04);
-    // background: linear-gradient(135deg, #e0eafc 0%, #f5f7fa 100%);
 }
 
 .add-form-row {
@@ -462,48 +497,4 @@
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
     letter-spacing: 0.02em;
     padding: 8px 24px;
-}
-
-@media (max-width: 900px) {
-
-    .todo-card,
-    .todo-form-card {
-        max-width: 100%;
-        padding: 14px 8px;
-    }
-
-    .form-fields {
-        gap: 10px;
-    }
-}
-
-@media (max-width: 700px) {
-    .todo-list-cards {
-        gap: 10px;
-        margin-top: 14px;
-    }
-
-    .todo-card,
-    .todo-form-card {
-        padding: 10px 4px;
-        min-width: 0;
-        max-width: 100%;
-    }
-
-    .todo-title {
-        font-size: 1rem;
-    }
-
-    .todo-details {
-        margin-left: 10px;
-    }
-
-    .form-fields {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .form-actions {
-        justify-content: center;
-    }
 }
